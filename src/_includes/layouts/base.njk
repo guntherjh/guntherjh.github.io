@@ -9,6 +9,8 @@
   <link rel="alternate" type="application/rss+xml" title="{{ metadata.title }}" href="{{ metadata.url }}/feed.xml">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
   <header class="site-header">
     <a class="site-title" href="/">{{ metadata.title }}</a>
     <nav class="site-nav">
@@ -18,7 +20,7 @@
     </nav>
   </header>
 
-  <main class="site-main">
+  <main class="site-main" id="main-content">
     {{ content | safe }}
   </main>
 
