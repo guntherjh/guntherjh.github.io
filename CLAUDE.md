@@ -1,5 +1,9 @@
 ## Agent skills
 
+### Coding standards
+
+Project structure, CSS, accessibility, JavaScript/performance, responsive design, and git/commit conventions this repo follows in practice. See `CODING_STANDARDS.md`.
+
 ### Issue tracker
 
 Issues live in this repo's GitHub Issues (guntherjh/guntherjh.github.io); skills use the `gh` CLI. See `docs/agents/issue-tracker.md`.
