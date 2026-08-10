@@ -19,6 +19,26 @@ Conventions this project follows in practice, written down so `/code-review` and
 - One stylesheet, `src/css/style.css`, passthrough-copied to `/css/style.css`. Custom properties (`:root { --... }`) are the mechanism for theming/tokens, not a build-time preprocessor.
 - The current stylesheet is intentionally minimal/placeholder pending the visual redesign tracked in issue #4 — don't read its current sparseness as the target design.
 
+## Accessibility
+
+- **Accessibility is a first-class, standing concern** — evaluate every page, component, and content change against it as you make it, not just at the eventual visual redesign (issue #4). "It'll be accessible after the redesign" is not an acceptable deferral.
+- **Semantic HTML first.** Use the element that means what you're building (`<nav>`, `<main>`, `<button>`, `<time>`, heading levels in document order) before reaching for ARIA — ARIA fills gaps semantic HTML can't cover, it doesn't replace it.
+- Concretely, that means (non-exhaustive, but the recurring checks): meaningful `alt` text on images, a single logical heading hierarchy per page, visible focus states on interactive elements, sufficient color contrast, and keyboard operability for anything a mouse can do.
+
+## JavaScript and performance
+
+- **HTML and CSS over JavaScript.** Solve a problem with markup and styling first; reach for JavaScript only when semantic HTML/CSS genuinely can't do the job.
+- **Native JS over third-party libraries.** When JavaScript actually is needed, prefer browser-native APIs before adding a dependency.
+- **Third-party JavaScript needs a documented decision, not a silent add.** If native APIs and vanilla JS genuinely can't cover the need, discuss why before adopting the dependency, and record the decision and its tradeoffs — as an ADR under `docs/adr/` if it meets the usual ADR bar (hard to reverse, non-obvious, a real tradeoff), otherwise a note in the PR description at minimum.
+- **Performance is a standing concern**, not a one-time audit — keep payload size and runtime cost in mind for every change, especially anything that adds JavaScript.
+- **Be deliberate about the main thread.** Only run code on the main thread that must run there; prefer approaches that keep it free (native browser behavior, CSS, deferred/async loading) over blocking work.
+
+## Responsive design
+
+- **The site should work well at every screen size**, from small phones through wide desktops — this applies to every page and component, not just a subset.
+- Prefer fluid, relative-unit layouts (`%`, `rem`, `clamp()`, flexbox/grid) over fixed pixel widths that only look right at one size.
+- When adding or changing layout, check it at a narrow mobile width and a wide desktop width at minimum, not just whatever window size you happen to be developing in.
+
 ## Git workflow
 
 - **One branch per ticket.** Branch off `master` (never commit ticket work directly to `master`). Branch names: `issue-<N>-<short-slug>` for ticket work, `chore/<slug>` for non-ticket housekeeping.
