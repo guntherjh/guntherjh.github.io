@@ -1,0 +1,114 @@
+---
+title: About
+layout: layouts/base.njk
+---
+<h1>About</h1>
+
+<section class="bio">
+  <p>I am a front-end engineer who builds applications and components using JavaScript, HTML, and CSS. I love building cool things, especially using JavaScript. I have worked on small and large code bases and enjoy the unique challenges presented by both.</p>
+</section>
+
+<section class="resume">
+  <h2>Work Experience</h2>
+
+  <article class="job">
+    <h3>Front-End Developer <span class="where">· Prometheus Group</span></h3>
+    <p class="dates">November 2015 – Present</p>
+    <p>Main front-end resource for multiple web-based projects. Also responsible for training and mentoring junior developers working on the front-end code bases.</p>
+    <ul>
+      <li>Currently working on the research and development team invesitgating a complete rewrite of a Gantt chart based scheduling application. The prototypes are being built using TypeScript, React, Redux, and Webpack. I'm using techniques such as virtualized tables to handle renderring large data sets.</li>
+      <li>Completely rewrote a legacy analytics application, porting the code base from ExtJS to React/Redux built using Webpack. It also went from having no test coverage to almost complete test coverage.</li>
+      <li>Implemented mandatory coding standards, test coverage, and code reviews for all new front-end projects. This includes custom ESLint configurations and Git hooks.</li>
+      <li>Created training documentation for interns and new hires working on the front-end code bases.</li>
+      <li>Helped advise the development team as they transitioned from SVN to Git, and from Redmine to Jira.</li>
+    </ul>
+  </article>
+
+  <article class="job">
+    <h3>Front-End Engineer II <span class="where">· Bronto Software</span></h3>
+    <p class="dates">May 2015 – November 2015</p>
+    <p>Dedicated front-end resource working with multiple teams, each responsible for a specific service.</p>
+    <ul>
+      <li>Worked on an application written in Angular used to create product recommendations. For this project, I was the lead front-end resource working with a team based in Europe.</li>
+      <li>Led a large refactor of existing Angular code. Added a build process (using Gulp) and a system for writing and running unit tests (Karma, Jasmine, and Gulp).</li>
+      <li>Worked on a team with 5 other front-end developers to build a new email message editor from the ground up. Built using Backbone.</li>
+      <li>Created a small libary for managing AJAX requests using ES6 promises.</li>
+    </ul>
+  </article>
+
+  <article class="job">
+    <h3>Front-End Engineer <span class="where">· Bronto Software</span></h3>
+    <p class="dates">July 2013 – November 2015</p>
+    <p>Responsible for building and maintaining the front-end code for the company's core application.</p>
+    <ul>
+      <li>First project was a total re-write of the front-end used in the segmentation system. This was ulitmately built using Backbone after evaluating a variety of other libraries/frameworks.</li>
+      <li>Led the effort to implement a front-end build process using Grunt.</li>
+      <li>Led the effort to modularize the JavaScript code used by the front-end team. Initially, I used AMD with requireJS, but ultimately switched to using commonJS with Browserify.</li>
+      <li>Implemented dependency management workflow for front-end code using Bower and NPM.</li>
+      <li>Set up the environment and developed the process for writing unit tests for the JavaScript code. Testing is now an integral part of the software development process for the front-end team and tests are run as part of a larger build process.</li>
+      <li>Developed and implemented a series of scripts used as Git hooks to ensure code quality prior to committing code. This includes style checks, linting, and a node script for comparing file mtimes.</li>
+    </ul>
+  </article>
+
+  <article class="job">
+    <h3>Technical Writer/eLearning Specialist <span class="where">· Bronto Software</span></h3>
+    <p class="dates">May 2008 – July 2013</p>
+    <p>Responsible for building the documentation system and maintaining the content.</p>
+    <ul>
+      <li>Developed an XML based documentation system from the ground up.</li>
+      <li>Used XSLT (via libxslt library built into PHP) to produce HTML help for the web application and print (PDF, Word) help from a single source.</li>
+      <li>Developed the front-end for the HTML help, including the main UI, a table of contents (using jQuery), tree navigation (using jQuery), and built-in search (using jQuery with Apache Solr as the search engine).</li>
+      <li>Wrote a series of shell scripts to manage producing each type of documentation output.</li>
+      <li>Maintained all of the API documentation for the company's SOAP API including all example code written in PHP and Python.</li>
+      <li>Managed a customer-facing product blog and served as editor for a team of contributors.</li>
+      <li>Created and edited a series of how-to videos explaining how to use various parts of the application.</li>
+    </ul>
+  </article>
+</section>
+
+<section class="education">
+  <h2>Education</h2>
+  <p><strong>University of Dayton</strong> — Bachelor, Journalism (2003 – 2007)</p>
+</section>
+
+<section class="skills">
+  <h2>Skills</h2>
+
+  <div class="skill-group">
+    <h3>JavaScript Development</h3>
+    <p>TypeScript, React, Redux, Backbone, Angular, jQuery, NodeJS</p>
+  </div>
+
+  <div class="skill-group">
+    <h3>JavaScript Testing</h3>
+    <p>Jest, Enzyme, React Storybook, Mocha, Chai, Expect, Sinon, Jasmine, Karma</p>
+  </div>
+
+  <div class="skill-group">
+    <h3>JavaScript Build Tools</h3>
+    <p>Webpack, Grunt, Gulp, ESLint, TSLint, Module Formats (AMD, CommonJS, UMD, ES2015), Module Loaders (RequireJS, Browserify, ES2015 via Babel)</p>
+  </div>
+
+  <div class="skill-group">
+    <h3>Web Development</h3>
+    <p>HTML, CSS, Sass, Less, Bootstrap 3, Bulma</p>
+  </div>
+
+  <div class="skill-group">
+    <h3>Additional Languages</h3>
+    <p>Elm, PHP, Python, XSLT, XQuery</p>
+  </div>
+
+  <div class="skill-group">
+    <h3>General</h3>
+    <p>GIT, SVN, Atlassian Suite (Jira/Bamboo, Confluence, Crucible), Gitlab, Guthub, FogBugz, Redmine, Jenkins</p>
+  </div>
+</section>
+
+<section class="contact">
+  <h2>Contact</h2>
+  <ul>
+    <li>Email: <a href="mailto:{{ metadata.author.email }}">{{ metadata.author.email }}</a></li>
+    <li>GitHub: <a href="{{ metadata.github }}">github.com/guntherjh</a></li>
+  </ul>
+</section>
