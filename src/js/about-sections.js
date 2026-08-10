@@ -19,8 +19,8 @@
   }
 
   function saveExpanded() {
-    var open = Array.prototype.filter
-      .call(sections, function (section) { return section.open; })
+    var open = Array.from(sections)
+      .filter(function (section) { return section.open; })
       .map(function (section) { return section.dataset.section; });
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(open));
