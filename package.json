@@ -1,0 +1,16 @@
+{
+  "name": "guntherjh.github.io",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Personal site of John Henry Gunther",
+  "scripts": {
+    "build": "eleventy",
+    "serve": "eleventy --serve",
+    "start": "eleventy --serve"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.6",
+    "@11ty/eleventy-plugin-rss": "^3.0.0"
+  }
+}
