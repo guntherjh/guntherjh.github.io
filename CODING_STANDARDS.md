@@ -15,22 +15,14 @@ Conventions this project follows in practice, written down so `/code-review` and
 
 ## CSS
 
-- **Plain modern CSS only** — no preprocessor (Sass/Less) and no utility framework (Tailwind, Bootstrap). See ADR-0001 and `CONTEXT.md` for why: this was a deliberate choice to keep the build pipeline minimal.
+- **Plain modern CSS only** — no preprocessor (Sass/Less) and no utility framework (Tailwind, Bootstrap). This was a deliberate choice made during the site's initial design/planning session to keep the build pipeline minimal — it isn't currently backed by a standalone ADR; if that choice ever gets revisited formally, that's where it should land.
 - One stylesheet, `src/css/style.css`, passthrough-copied to `/css/style.css`. Custom properties (`:root { --... }`) are the mechanism for theming/tokens, not a build-time preprocessor.
 - The current stylesheet is intentionally minimal/placeholder pending the visual redesign tracked in issue #4 — don't read its current sparseness as the target design.
-
-## Blog permalinks
-
-- Posts resolve to `/blog/<slug>/` (flat, no date segment in the URL) — see ADR-0002. A post's `date` in frontmatter still drives ordering and RSS; it's just not part of the URL path.
 
 ## Git workflow
 
 - **One branch per ticket.** Branch off `master` (never commit ticket work directly to `master`). Branch names: `issue-<N>-<short-slug>` for ticket work, `chore/<slug>` for non-ticket housekeeping.
 - **One PR per ticket**, opened against `master`, referencing the resolved issue in the PR body.
-- **Commit messages**: imperative subject line; a body explaining *why* when it's non-obvious, not just what changed; and, for commits that resolve a tracked issue, the issue's full URL on its own line at the end (e.g. `https://github.com/guntherjh/guntherjh.github.io/issues/2`) — not a bare `Closes #N` shorthand, and no `Co-Authored-By` trailer.
+- **Commit messages**: imperative subject line; a body explaining *why* when it's non-obvious, not just what changed. **From issue #8 onward**: for commits that resolve a tracked issue, put the issue's full URL on its own line at the end (e.g. `https://github.com/guntherjh/guntherjh.github.io/issues/2`) instead of a bare `Closes #N` shorthand, and omit the `Co-Authored-By` trailer. Earlier commits in this repo's history predate that convention and still use `Closes #N` plus a `Co-Authored-By` trailer — don't take them as the current standard.
 - **Verify before committing**: run `npx eleventy` and confirm it builds clean; for content changes, spot-check the rendered `_site/` output before committing.
 - Once a ticket's work is committed, run `/code-review` against `master` before opening the PR.
-
-## Issue tracker
-
-- GitHub Issues, via the `gh` CLI. Every ticket carries one category label (`bug`/`enhancement`) and one state label from the triage vocabulary (`needs-triage`, `needs-info`, `ready-to-implement`, `wontfix` — see `docs/agents/triage-labels.md`). Tickets ready to be worked are labeled `ready-to-implement` and use the "What to build / Acceptance criteria / Blocked by" template.
