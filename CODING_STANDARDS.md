@@ -21,7 +21,7 @@ Conventions this project follows in practice, written down so `/code-review` and
 
 ## Accessibility
 
-- **Accessibility is a first-class, standing concern** — evaluate every page, component, and content change against it as you make it, not just at the eventual visual redesign (issue #4). "It'll be accessible after the redesign" is not an acceptable deferral.
+- **Strive to be as accessible as possible** — this is a first-class, standing concern, not a minimum-bar checkbox. Evaluate every page, component, and content change against it as you make it, not just at the eventual visual redesign (issue #4). "It'll be accessible after the redesign" is not an acceptable deferral.
 - **Semantic HTML first.** Use the element that means what you're building (`<nav>`, `<main>`, `<button>`, `<time>`, heading levels in document order) before reaching for ARIA — ARIA fills gaps semantic HTML can't cover, it doesn't replace it.
 - Concretely, that means (non-exhaustive, but the recurring checks): meaningful `alt` text on images, a single logical heading hierarchy per page, visible focus states on interactive elements, sufficient color contrast, and keyboard operability for anything a mouse can do.
 
@@ -29,7 +29,7 @@ Conventions this project follows in practice, written down so `/code-review` and
 
 - **HTML and CSS over JavaScript.** Solve a problem with markup and styling first; reach for JavaScript only when semantic HTML/CSS genuinely can't do the job.
 - **Native JS over third-party libraries.** When JavaScript actually is needed, prefer browser-native APIs before adding a dependency.
-- **Third-party JavaScript needs a documented decision, not a silent add.** If native APIs and vanilla JS genuinely can't cover the need, discuss why before adopting the dependency, and record the decision and its tradeoffs — as an ADR under `docs/adr/` if it meets the usual ADR bar (hard to reverse, non-obvious, a real tradeoff), otherwise a note in the PR description at minimum.
+- **Third-party JavaScript always requires a discussion, and the decision must always be documented — no silent adds.** If native APIs and vanilla JS genuinely can't cover the need, discuss why before adopting the dependency. Always write down the decision and its tradeoffs; use an ADR under `docs/adr/` when the decision is hard to reverse, non-obvious, or a real tradeoff between genuine alternatives (the same bar this repo's other ADRs use), otherwise a note in the PR description — but the "always document" requirement itself has no exception, only the format varies.
 - **Performance is a standing concern**, not a one-time audit — keep payload size and runtime cost in mind for every change, especially anything that adds JavaScript.
 - **Be deliberate about the main thread.** Only run code on the main thread that must run there; prefer approaches that keep it free (native browser behavior, CSS, deferred/async loading) over blocking work.
 

@@ -2,7 +2,7 @@
 
 ### Coding standards
 
-Project structure, CSS approach, and git/commit conventions this repo follows in practice. See `CODING_STANDARDS.md`.
+Project structure, CSS, accessibility, JavaScript/performance, responsive design, and git/commit conventions this repo follows in practice. See `CODING_STANDARDS.md`.
 
 ### Issue tracker
 
