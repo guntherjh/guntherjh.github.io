@@ -6,7 +6,25 @@
   <title>{% if title %}{{ title }} · {% endif %}{{ metadata.title }}</title>
   <meta name="description" content="{{ description or metadata.description }}">
   <link rel="stylesheet" href="/css/style.css">
+  <!-- PROTOTYPE (issue #19 / wayfinder map #17) — throwaway, lives only on
+       prototype/light-dark-theming-issue-19. Do not merge to master. -->
+  <link rel="stylesheet" href="/css/prototype-variants.css">
   <link rel="alternate" type="application/rss+xml" title="{{ metadata.title }}" href="{{ metadata.url }}/feed.xml">
+  <script>
+    // Applied before paint to avoid a flash of the wrong theme. Reads the
+    // real feature under test (binary light/dark, system-default,
+    // sticky override) — this logic is NOT prototype-only, it's what
+    // issue #19 is validating.
+    (function () {
+      var stored = null;
+      try {
+        stored = localStorage.getItem("theme");
+      } catch (e) {}
+      var effective =
+        stored || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", effective);
+    })();
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -18,6 +36,9 @@
       <a href="/about/">About</a>
       <a href="/blog/">Blog</a>
     </nav>
+    <button type="button" class="theme-toggle" aria-label="Switch to dark theme" aria-pressed="false">
+      <span aria-hidden="true" class="theme-toggle-icon"></span>
+    </button>
   </header>
 
   <main class="site-main" id="main-content">
@@ -27,5 +48,110 @@
   <footer class="site-footer">
     <p>&copy; {{ buildTime | readableDate }} {{ metadata.title }}. <a href="/feed.xml">RSS</a></p>
   </footer>
+
+  <script>
+    // Real feature: theme toggle. Binary, sticky once set, defaults to
+    // system preference until then, listens for system changes only
+    // while no explicit override is stored. Same localStorage pattern
+    // as src/js/about-sections.js.
+    (function () {
+      var STORAGE_KEY = "theme";
+      var toggle = document.querySelector(".theme-toggle");
+      var media = matchMedia("(prefers-color-scheme: dark)");
+
+      function getStored() {
+        try {
+          return localStorage.getItem(STORAGE_KEY);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function setStored(value) {
+        try {
+          localStorage.setItem(STORAGE_KEY, value);
+        } catch (e) {}
+      }
+
+      function apply(theme) {
+        document.documentElement.setAttribute("data-theme", theme);
+        var isDark = theme === "dark";
+        toggle.setAttribute("aria-pressed", String(isDark));
+        toggle.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
+      }
+
+      apply(getStored() || (media.matches ? "dark" : "light"));
+
+      toggle.addEventListener("click", function () {
+        var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        setStored(next);
+        apply(next);
+      });
+
+      media.addEventListener("change", function (e) {
+        if (getStored()) return; // explicit override is sticky, ignore system changes
+        apply(e.matches ? "dark" : "light");
+      });
+    })();
+  </script>
+
+  <!-- PROTOTYPE SWITCHER (issue #19) — throwaway, cycles candidate
+       visual directions. Unrelated to the theme toggle above. -->
+  <div class="prototype-switcher" role="toolbar" aria-label="Prototype variant switcher">
+    <button type="button" class="proto-prev" aria-label="Previous variant">←</button>
+    <span class="proto-label"></span>
+    <button type="button" class="proto-next" aria-label="Next variant">→</button>
+  </div>
+  <script>
+    (function () {
+      var variants = [
+        { key: "a", name: "Timeline" },
+        { key: "b", name: "Letterpress editorial" },
+        { key: "c", name: "Data-dense dashboard" },
+      ];
+
+      function currentIndex() {
+        var params = new URLSearchParams(location.search);
+        var key = params.get("variant") || "a";
+        var i = variants.findIndex(function (v) {
+          return v.key === key;
+        });
+        return i === -1 ? 0 : i;
+      }
+
+      function apply(index) {
+        var v = variants[index];
+        document.documentElement.setAttribute("data-variant", v.key);
+        var label = document.querySelector(".proto-label");
+        if (label) label.textContent = v.key.toUpperCase() + " — " + v.name;
+        var params = new URLSearchParams(location.search);
+        params.set("variant", v.key);
+        history.replaceState(null, "", location.pathname + "?" + params.toString());
+      }
+
+      var index = currentIndex();
+      apply(index);
+
+      function go(delta) {
+        index = (index + delta + variants.length) % variants.length;
+        apply(index);
+      }
+
+      document.querySelector(".proto-prev").addEventListener("click", function () {
+        go(-1);
+      });
+      document.querySelector(".proto-next").addEventListener("click", function () {
+        go(1);
+      });
+
+      document.addEventListener("keydown", function (e) {
+        var active = document.activeElement;
+        var tag = active && active.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || (active && active.isContentEditable)) return;
+        if (e.key === "ArrowLeft") go(-1);
+        if (e.key === "ArrowRight") go(1);
+      });
+    })();
+  </script>
 </body>
 </html>
