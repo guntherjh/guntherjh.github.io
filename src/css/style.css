@@ -1,12 +1,31 @@
 /*
   Data-dense dashboard direction, confirmed via wayfinder map #17 /
   tickets #18-#19. Light/dark tokens switch on the [data-theme]
-  attribute set by the pre-paint script in base.njk.
+  attribute, set by the pre-paint script in base.njk.
+
+  Contrast reverified against the actual final values (not just
+  trusted from the prototype), independently for both palettes:
+    light: text/bg 15.7:1, muted/bg 5.72:1, accent/bg 4.64:1
+    dark:  text/bg 11.6:1, muted/panel 4.63:1, accent/bg 4.99:1
+  All pass WCAG AA (4.5:1 normal text); several exceed AAA (7:1).
+
+  :root carries the light palette as a fallback — if the pre-paint
+  script never runs (JS disabled/blocked/errors before it executes),
+  html gets no [data-theme] attribute and these are the values used,
+  so the design (badges, toggle, skip-link) doesn't silently lose its
+  styling. html[data-theme="light"] below is redundant with :root in
+  that case but kept explicit for symmetry with the dark block.
 */
 
 :root {
     --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --measure: 42rem;
+    --color-bg: #f2f2f4;
+    --color-panel: #e4e4e8;
+    --color-text: #14181f;
+    --color-muted: #57606a;
+    --color-accent: #0969da;
+    --color-border: #c7c7cf;
 }
 
 html[data-theme="light"] {
@@ -72,6 +91,11 @@ a {
     padding: 1.5rem 1rem;
 }
 
+/* align-items: center (was baseline) and .site-nav's flex: 1 below are
+   both needed to fit the theme toggle button, which isn't text and
+   doesn't have a text baseline to align against. justify-content:
+   space-between was dropped since nav now grows to fill the space
+   between title and toggle on its own. */
 .site-header {
     display: flex;
     flex-wrap: wrap;

@@ -6,9 +6,9 @@
 // following system-preference changes while no override is stored.
 // Same native localStorage pattern as src/js/about-sections.js.
 (function () {
-    var STORAGE_KEY = "theme";
-    var toggle = document.querySelector(".theme-toggle");
-    var media = matchMedia("(prefers-color-scheme: dark)");
+    const STORAGE_KEY = "theme";
+    const toggle = document.querySelector(".theme-toggle");
+    const media = matchMedia("(prefers-color-scheme: dark)");
 
     function getStored() {
         try {
@@ -28,7 +28,7 @@
 
     function apply(theme) {
         document.documentElement.setAttribute("data-theme", theme);
-        var isDark = theme === "dark";
+        const isDark = theme === "dark";
         toggle.setAttribute("aria-pressed", String(isDark));
         toggle.setAttribute(
             "aria-label",
@@ -39,8 +39,8 @@
     // Sync aria state with whatever the pre-paint script already applied.
     apply(document.documentElement.getAttribute("data-theme"));
 
-    toggle.addEventListener("click", function () {
-        var next =
+    toggle.addEventListener("click", () => {
+        const next =
             document.documentElement.getAttribute("data-theme") === "dark"
                 ? "light"
                 : "dark";
@@ -48,7 +48,7 @@
         apply(next);
     });
 
-    media.addEventListener("change", function (e) {
+    media.addEventListener("change", (e) => {
         if (getStored()) return; // explicit override is sticky, ignore system changes
         apply(e.matches ? "dark" : "light");
     });
