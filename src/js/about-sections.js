@@ -7,8 +7,8 @@
 // private browsing), sections still expand/collapse via native <details>
 // behavior — they just don't remember state between visits.
 (function () {
-  var STORAGE_KEY = "about-expanded-sections";
-  var sections = document.querySelectorAll(".about-section");
+  const STORAGE_KEY = "about-expanded-sections";
+  const sections = document.querySelectorAll(".about-section");
 
   function loadExpanded() {
     try {
@@ -19,9 +19,9 @@
   }
 
   function saveExpanded() {
-    var open = Array.from(sections)
-      .filter(function (section) { return section.open; })
-      .map(function (section) { return section.dataset.section; });
+    const open = Array.from(sections)
+      .filter((section) => section.open )
+      .map((section) => section.dataset.section );
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(open));
     } catch (e) {
@@ -29,8 +29,8 @@
     }
   }
 
-  var expanded = loadExpanded();
-  sections.forEach(function (section) {
+  const expanded = loadExpanded();
+  sections.forEach((section) => {
     if (expanded.indexOf(section.dataset.section) !== -1) {
       section.open = true;
     }
