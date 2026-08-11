@@ -4,6 +4,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addPlugin(pluginRss);
 
   eleventyConfig.addPassthroughCopy("src/css");
+  eleventyConfig.addPassthroughCopy("src/js");
   eleventyConfig.addPassthroughCopy({ "src/CNAME": "CNAME" });
 
   // Used by feed.njk so the RSS <updated> timestamp is always valid,
