@@ -16,10 +16,12 @@ export default function (eleventyConfig) {
       year: "numeric",
       month: "long",
       day: "numeric",
-    }).format(dateObj)
+    }).format(dateObj),
   );
 
-  eleventyConfig.addFilter("isoDate", (dateObj) => new Date(dateObj).toISOString());
+  eleventyConfig.addFilter("isoDate", (dateObj) =>
+    new Date(dateObj).toISOString(),
+  );
 
   return {
     dir: {

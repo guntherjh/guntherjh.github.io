@@ -13,18 +13,18 @@
   function loadExpanded() {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    } catch (e) {
+    } catch {
       return [];
     }
   }
 
   function saveExpanded() {
     const open = Array.from(sections)
-      .filter((section) => section.open )
-      .map((section) => section.dataset.section );
+      .filter((section) => section.open)
+      .map((section) => section.dataset.section);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(open));
-    } catch (e) {
+    } catch {
       // localStorage unavailable — sections still work, just won't persist.
     }
   }

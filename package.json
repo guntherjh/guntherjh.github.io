@@ -7,10 +7,17 @@
   "scripts": {
     "build": "eleventy",
     "serve": "eleventy --serve",
-    "start": "eleventy --serve"
+    "start": "eleventy --serve",
+    "lint": "eslint .",
+    "format": "prettier --write eleventy.config.js \"src/_data/**/*.js\" \"src/js/**/*.js\"",
+    "format:check": "prettier --check eleventy.config.js \"src/_data/**/*.js\" \"src/js/**/*.js\""
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.6",
-    "@11ty/eleventy-plugin-rss": "^3.0.0"
+    "@11ty/eleventy-plugin-rss": "^3.0.0",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6"
   }
 }
