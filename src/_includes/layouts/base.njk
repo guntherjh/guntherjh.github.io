@@ -29,14 +29,40 @@
 
   <header class="site-header">
     <a class="site-title" href="/">{{ metadata.title }}</a>
-    <nav class="site-nav">
-      <a href="/">Home</a>
-      <a href="/about/">About</a>
-      <a href="/blog/">Blog</a>
-    </nav>
-    <button type="button" class="theme-toggle" aria-label="Switch to dark theme" aria-pressed="false">
-      <span aria-hidden="true" class="theme-toggle-icon"></span>
-    </button>
+
+    <!-- Desktop: always-visible nav + toggle, hidden below the mobile
+         breakpoint (see style.css). Independent from the mobile copy
+         below — plain display:none/flex toggling only, not relying on
+         overriding <details>'s native closed-content hiding, which
+         turned out not to be reliably overridable that way. -->
+    <div class="site-header-controls">
+      <nav class="site-nav">
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/blog/">Blog</a>
+      </nav>
+      <button type="button" class="theme-toggle" role="switch" aria-checked="false" aria-label="Dark mode">
+        <span class="theme-toggle-thumb" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <!-- Mobile: hamburger + overlay panel (position: absolute, doesn't
+         affect header height when open), hidden above the breakpoint. -->
+    <details class="nav-toggle">
+      <summary class="nav-toggle-summary" aria-label="Menu">
+        <span aria-hidden="true">☰</span>
+      </summary>
+      <div class="nav-toggle-panel">
+        <nav class="site-nav">
+          <a href="/">Home</a>
+          <a href="/about/">About</a>
+          <a href="/blog/">Blog</a>
+        </nav>
+        <button type="button" class="theme-toggle" role="switch" aria-checked="false" aria-label="Dark mode">
+          <span class="theme-toggle-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+    </details>
   </header>
 
   <main class="site-main" id="main-content">

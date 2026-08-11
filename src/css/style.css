@@ -110,8 +110,25 @@ a {
     color: var(--color-text);
 }
 
-.site-nav {
+/* Desktop controls: always visible above the breakpoint, hidden below
+   it via a plain display:none (see media query). Independent element
+   from .nav-toggle below — not the same nav/toggle shown twice via
+   some clever single-markup trick, because reliably keeping content
+   visible above a breakpoint while it's nested inside a <details>
+   turned out not to work (native closed-content hiding isn't reliably
+   overridable that way). */
+.site-header-controls {
+    display: flex;
+    align-items: center;
     flex: 1;
+}
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    flex: 1;
+    justify-content: end;
 }
 
 .site-nav a {
@@ -123,26 +140,158 @@ a {
     text-decoration: underline;
 }
 
+/* An actual toggle switch (track + sliding thumb), not an icon button —
+   role="switch"/aria-checked on the button (set by theme-toggle.js) is
+   the correct ARIA pattern for a control that visually is a switch. */
 .theme-toggle {
     cursor: pointer;
     border: 1px solid var(--color-border);
     background: var(--color-panel);
-    border-radius: 4px;
+    border-radius: 999px;
     margin-left: 1rem;
-    width: 2rem;
-    height: 2rem;
-    display: inline-flex;
+    width: 2.75rem;
+    height: 1.5rem;
+    padding: 0.15rem;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.theme-toggle-thumb {
+    display: flex;
     align-items: center;
     justify-content: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: var(--color-text);
+    font-size: 0.65rem;
+    line-height: 1;
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease;
+}
+
+/* Icon color is always the inverse token of the thumb's own background
+   (--color-bg vs --color-text), so contrast is guaranteed correct in
+   both states without a separate check — they're already verified
+   near-max-contrast pairs (15.7:1 light / 11.6:1 dark, see palette
+   comment at the top of this file).
+
+   The pseudo-element gets its own explicit flex centering (not just
+   relying on the parent's) because Unicode symbol glyphs like ☀/☾
+   commonly don't sit centered within their own font metrics — filling
+   the thumb exactly (width/height: 100%) and centering the glyph
+   within that exact box is more reliable than centering the
+   pseudo-element as a flex item and hoping the glyph centers itself. */
+.theme-toggle-thumb::before {
+    content: "☀";
+    color: var(--color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 2px;
+}
+
+/* Travel distance: track content area (2.75rem - 2 × 0.15rem padding)
+   minus the thumb's own width = 2.45rem - 1.1rem = 1.35rem. */
+.theme-toggle[aria-checked="true"] {
+    background: var(--color-accent);
+}
+
+.theme-toggle[aria-checked="true"] .theme-toggle-thumb {
+    transform: translateX(1.35rem);
+    background: var(--color-bg);
+}
+
+.theme-toggle[aria-checked="true"] .theme-toggle-thumb::before {
+    content: "☾";
     color: var(--color-text);
 }
 
-.theme-toggle-icon::before {
-    content: "☀";
+/* Mobile controls: hidden entirely above the breakpoint. <details> is
+   the natural fit here (not fighting its behavior, using it exactly
+   as intended — content shown only when [open]) since this only ever
+   needs to behave normally within a single breakpoint. */
+.nav-toggle {
+    display: none;
 }
 
-html[data-theme="dark"] .theme-toggle-icon::before {
-    content: "☾";
+.nav-toggle-summary {
+    cursor: pointer;
+    list-style: none;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+}
+
+/* Safari/WebKit renders its own marker outside the list-style mechanism
+   (same fix as .about-section's summary, see below) */
+.nav-toggle-summary::-webkit-details-marker {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    /* With .site-header-controls hidden, only the title and the
+       hamburger remain — neither has flex-grow, so without this
+       they'd sit adjacent at the start instead of at opposite ends. */
+    .site-header {
+        justify-content: space-between;
+    }
+
+    .site-header-controls {
+        display: none;
+    }
+
+    .nav-toggle {
+        display: block;
+        position: relative;
+    }
+
+    .nav-toggle-summary {
+        display: inline-flex;
+    }
+
+    /* position: absolute so the open panel overlays the page instead
+       of pushing .site-header's height — it must not grow the header
+       when expanded. */
+    .nav-toggle-panel {
+        display: none;
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        right: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        min-width: 10rem;
+        background: var(--color-panel);
+        border: 1px solid var(--color-border);
+        border-radius: 4px;
+        padding: 0.75rem;
+        z-index: 10;
+    }
+
+    .nav-toggle[open] .nav-toggle-panel {
+        display: flex;
+    }
+
+    .nav-toggle-panel .site-nav {
+        flex-direction: column;
+    }
+
+    .nav-toggle-panel .site-nav a {
+        margin-left: 0;
+        padding: 0.5rem 0;
+    }
+
+    .nav-toggle-panel .theme-toggle {
+        margin-left: 0;
+    }
 }
 
 .site-footer {

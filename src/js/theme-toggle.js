@@ -5,9 +5,13 @@
 // the interactive part: the click handler, persisting the override, and
 // following system-preference changes while no override is stored.
 // Same native localStorage pattern as src/js/about-sections.js.
+//
+// There are two .theme-toggle buttons in the DOM (desktop header copy,
+// mobile hamburger-panel copy — see base.njk/style.css) — both are
+// wired here and kept in sync, since clicking either should flip both.
 (function () {
     const STORAGE_KEY = "theme";
-    const toggle = document.querySelector(".theme-toggle");
+    const toggles = document.querySelectorAll(".theme-toggle");
     const media = matchMedia("(prefers-color-scheme: dark)");
 
     function getStored() {
@@ -29,23 +33,25 @@
     function apply(theme) {
         document.documentElement.setAttribute("data-theme", theme);
         const isDark = theme === "dark";
-        toggle.setAttribute("aria-pressed", String(isDark));
-        toggle.setAttribute(
-            "aria-label",
-            isDark ? "Switch to light theme" : "Switch to dark theme",
-        );
+        // aria-label stays static ("Dark mode") — aria-checked alone
+        // communicates state, per the ARIA switch pattern.
+        toggles.forEach((toggle) => {
+            toggle.setAttribute("aria-checked", String(isDark));
+        });
     }
 
     // Sync aria state with whatever the pre-paint script already applied.
     apply(document.documentElement.getAttribute("data-theme"));
 
-    toggle.addEventListener("click", () => {
-        const next =
-            document.documentElement.getAttribute("data-theme") === "dark"
-                ? "light"
-                : "dark";
-        setStored(next);
-        apply(next);
+    toggles.forEach((toggle) => {
+        toggle.addEventListener("click", () => {
+            const next =
+                document.documentElement.getAttribute("data-theme") === "dark"
+                    ? "light"
+                    : "dark";
+            setStored(next);
+            apply(next);
+        });
     });
 
     media.addEventListener("change", (e) => {
