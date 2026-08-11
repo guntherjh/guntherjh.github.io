@@ -34,6 +34,7 @@ export default [
       globals: {
         document: "readonly",
         localStorage: "readonly",
+        matchMedia: "readonly",
       },
     },
   },

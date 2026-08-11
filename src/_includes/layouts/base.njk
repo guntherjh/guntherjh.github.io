@@ -7,6 +7,22 @@
   <meta name="description" content="{{ description or metadata.description }}">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="alternate" type="application/rss+xml" title="{{ metadata.title }}" href="{{ metadata.url }}/feed.xml">
+  <script>
+    // Sets [data-theme] before first paint, deliberately inline (not an
+    // external/deferred file) — an external script would load after the
+    // initial render and cause a visible flash of the wrong theme.
+    // Interaction logic (the toggle itself) lives in
+    // /js/theme-toggle.js; this only decides the *initial* theme.
+    (function () {
+      var stored = null;
+      try {
+        stored = localStorage.getItem("theme");
+      } catch {}
+      var effective =
+        stored || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", effective);
+    })();
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -18,6 +34,9 @@
       <a href="/about/">About</a>
       <a href="/blog/">Blog</a>
     </nav>
+    <button type="button" class="theme-toggle" aria-label="Switch to dark theme" aria-pressed="false">
+      <span aria-hidden="true" class="theme-toggle-icon"></span>
+    </button>
   </header>
 
   <main class="site-main" id="main-content">
@@ -27,5 +46,7 @@
   <footer class="site-footer">
     <p>&copy; {{ buildTime | readableDate }} {{ metadata.title }}. <a href="/feed.xml">RSS</a></p>
   </footer>
+
+  <script src="/js/theme-toggle.js" defer></script>
 </body>
 </html>
