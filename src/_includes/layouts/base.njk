@@ -95,37 +95,41 @@
     })();
   </script>
 
-  <!-- PROTOTYPE SWITCHER (issue #19) — throwaway, cycles candidate
-       visual directions. Unrelated to the theme toggle above. -->
-  <div class="prototype-switcher" role="toolbar" aria-label="Prototype variant switcher">
-    <button type="button" class="proto-prev" aria-label="Previous variant">←</button>
+  <!-- PROTOTYPE SWITCHER (issue #19, round 3) — throwaway. Direction C
+       won already (data-variant is fixed below), so this now cycles
+       dark-mode background alternatives instead of whole directions.
+       Switch to dark theme (toggle above) to see the difference. -->
+  <div class="prototype-switcher" role="toolbar" aria-label="Prototype dark-background switcher">
+    <button type="button" class="proto-prev" aria-label="Previous dark background">←</button>
     <span class="proto-label"></span>
-    <button type="button" class="proto-next" aria-label="Next variant">→</button>
+    <button type="button" class="proto-next" aria-label="Next dark background">→</button>
   </div>
   <script>
     (function () {
-      var variants = [
-        { key: "a", name: "Timeline" },
-        { key: "b", name: "Letterpress editorial" },
-        { key: "c", name: "Data-dense dashboard" },
+      document.documentElement.setAttribute("data-variant", "c");
+
+      var alts = [
+        { key: "1", name: "Dim mode" },
+        { key: "2", name: "Deep teal-black" },
+        { key: "3", name: "Deep violet-black" },
       ];
 
       function currentIndex() {
         var params = new URLSearchParams(location.search);
-        var key = params.get("variant") || "a";
-        var i = variants.findIndex(function (v) {
-          return v.key === key;
+        var key = params.get("darkbg") || "1";
+        var i = alts.findIndex(function (a) {
+          return a.key === key;
         });
         return i === -1 ? 0 : i;
       }
 
       function apply(index) {
-        var v = variants[index];
-        document.documentElement.setAttribute("data-variant", v.key);
+        var a = alts[index];
+        document.documentElement.setAttribute("data-dark-alt", a.key);
         var label = document.querySelector(".proto-label");
-        if (label) label.textContent = v.key.toUpperCase() + " — " + v.name;
+        if (label) label.textContent = a.key + " — " + a.name;
         var params = new URLSearchParams(location.search);
-        params.set("variant", v.key);
+        params.set("darkbg", a.key);
         history.replaceState(null, "", location.pathname + "?" + params.toString());
       }
 
@@ -133,7 +137,7 @@
       apply(index);
 
       function go(delta) {
-        index = (index + delta + variants.length) % variants.length;
+        index = (index + delta + alts.length) % alts.length;
         apply(index);
       }
 

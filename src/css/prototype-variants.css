@@ -84,149 +84,14 @@
 }
 
 /* =====================================================================
-   Variant A — "Timeline"
-   A persistent vertical spine with nodes connecting jobs and posts —
-   chronological/narrative visual identity. Primary affordance: telling
-   a story over time, distinct from any static-panel treatment.
-   ===================================================================== */
-
-html[data-variant="a"][data-theme="light"] {
-    --color-bg: #fafafa;
-    --color-text: #1f2328;
-    --color-muted: #57606a;
-    --color-accent: #7c3aed;
-    --color-border: #d0d7de;
-}
-
-html[data-variant="a"][data-theme="dark"] {
-    --color-bg: #14161a;
-    --color-text: #eaedf0;
-    --color-muted: #9198a1;
-    --color-accent: #a78bfa;
-    --color-border: #30363d;
-}
-
-html[data-variant="a"] body {
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-
-html[data-variant="a"] a {
-    color: var(--color-accent);
-}
-
-html[data-variant="a"] .site-nav a {
-    padding-bottom: 0.25rem;
-    border-bottom: 2px solid transparent;
-}
-
-html[data-variant="a"] .site-nav a:hover {
-    border-bottom-color: var(--color-accent);
-}
-
-html[data-variant="a"] .job,
-html[data-variant="a"] .post-list li {
-    position: relative;
-    padding-left: 1.5rem;
-    border-left: 2px solid var(--color-border);
-    border-bottom: none;
-}
-
-html[data-variant="a"] .job::before,
-html[data-variant="a"] .post-list li::before {
-    content: "";
-    position: absolute;
-    left: -0.4rem;
-    top: 0.35rem;
-    width: 0.65rem;
-    height: 0.65rem;
-    border-radius: 50%;
-    background: var(--color-accent);
-    border: 2px solid var(--color-bg);
-}
-
-html[data-variant="a"] .theme-toggle {
-    border: 1px solid var(--color-border);
-    border-radius: 50%;
-    color: var(--color-text);
-}
-
-/* =====================================================================
-   Variant B — "Letterpress editorial"
-   Literary serif throughout (not just headings), drop cap, ornamental
-   rule dividers, parchment tone. Primary affordance: reading, evokes a
-   printed page rather than a screen.
-   ===================================================================== */
-
-html[data-variant="b"][data-theme="light"] {
-    --color-bg: #f7f3e9;
-    --color-text: #2b2620;
-    --color-muted: #746b5c;
-    --color-accent: #8a3324;
-    --color-border: #d8cfba;
-}
-
-html[data-variant="b"][data-theme="dark"] {
-    --color-bg: #211d17;
-    --color-text: #f2ede1;
-    --color-muted: #b0a58e;
-    --color-accent: #d97b64;
-    --color-border: #3d362a;
-}
-
-html[data-variant="b"] body {
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-family: Georgia, "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-    line-height: 1.65;
-}
-
-html[data-variant="b"] a {
-    color: var(--color-accent);
-}
-
-html[data-variant="b"] .site-title {
-    font-style: italic;
-}
-
-html[data-variant="b"] .site-header {
-    border-bottom: 1px solid var(--color-border);
-}
-
-html[data-variant="b"] h1,
-html[data-variant="b"] h2,
-html[data-variant="b"] h3,
-html[data-variant="b"] h4 {
-    font-weight: 400;
-    font-style: italic;
-}
-
-html[data-variant="b"] .bio p:first-of-type::first-letter {
-    font-size: 3rem;
-    float: left;
-    line-height: 0.8;
-    padding-right: 0.35rem;
-    padding-top: 0.1rem;
-    color: var(--color-accent);
-}
-
-html[data-variant="b"] h2::after {
-    content: " ❧";
-    color: var(--color-muted);
-    font-weight: 400;
-    font-style: normal;
-}
-
-html[data-variant="b"] .theme-toggle {
-    color: var(--color-text);
-}
-
-/* =====================================================================
-   Variant C — "Data-dense dashboard"
+   Variant C — "Data-dense dashboard" — THE WINNER (issue #19).
    Tight spacing, tag/badge treatment for skills and job durations,
-   optimized for scanning facts fast. Primary affordance: density —
-   the opposite instinct from the editorial direction above.
+   optimized for scanning facts fast.
+
+   Round 3: light mode and the rest of the design are settled — only
+   the dark background is in question. data-dark-alt (below) cycles
+   three alternatives to #0b0d10 (near-black), which the site owner
+   wasn't sold on. Everything else about variant C is unchanged.
    ===================================================================== */
 
 html[data-variant="c"][data-theme="light"] {
@@ -238,13 +103,50 @@ html[data-variant="c"][data-theme="light"] {
     --color-border: #d0d7de;
 }
 
+/* Light-mode equivalent of the winning "Dim mode" dark alt (alt 1) —
+   same sensibility (avoid stark extremes) applied to light: soft
+   off-white instead of pure #ffffff. Only kicks in when alt 1 is
+   selected, so switching to alts 2/3 still shows pure-white light for
+   comparison. Contrast re-verified against the new bg (accent 4.64:1,
+   still passes AA; text stays >15:1). */
+html[data-variant="c"][data-theme="light"][data-dark-alt="1"] {
+    --color-bg: #f2f2f4;
+    --color-panel: #e4e4e8;
+    --color-border: #c7c7cf;
+}
+
+/* Shared dark-mode tokens across all three alternatives */
 html[data-variant="c"][data-theme="dark"] {
-    --color-bg: #0b0d10;
-    --color-panel: #1a1f27;
     --color-text: #e6e9ec;
-    --color-muted: #8b949e;
     --color-accent: #4a9eff;
-    --color-border: #2d333b;
+}
+
+/* Round 2 (soft neutral gray / cool slate / warm gray) rejected outright,
+   replaced per request. Alt 1 — "dim mode" (lighter dark, VS Code-dark
+   territory, less stark than near-black) */
+html[data-variant="c"][data-theme="dark"][data-dark-alt="1"] {
+    --color-bg: #2d2d30;
+    --color-panel: #3c3c41;
+    --color-muted: #a8a8ad;
+    --color-border: #4a4a50;
+}
+
+/* Alt 2 — deep teal-black, subtle green/teal undertone instead of gray/blue */
+html[data-variant="c"][data-theme="dark"][data-dark-alt="2"] {
+    --color-bg: #0d1912;
+    --color-panel: #16241b;
+    --color-muted: #8fa696;
+    --color-accent: #4fd1c5;
+    --color-border: #24352a;
+}
+
+/* Alt 3 — deep violet-black, subtle purple undertone, richer than plain gray */
+html[data-variant="c"][data-theme="dark"][data-dark-alt="3"] {
+    --color-bg: #16121f;
+    --color-panel: #211c2e;
+    --color-muted: #a89bc2;
+    --color-accent: #a78bfa;
+    --color-border: #2f2740;
 }
 
 html[data-variant="c"] body {
