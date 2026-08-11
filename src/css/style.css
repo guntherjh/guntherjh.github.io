@@ -335,7 +335,7 @@ h4 {
     margin-bottom: 0.75rem;
 }
 
-.job h4 {
+.job h3 {
     margin-bottom: 0.25rem;
 }
 
@@ -360,7 +360,7 @@ h4 {
     margin-bottom: 0.75rem;
 }
 
-.skill-group h4 {
+.skill-group h3 {
     margin-bottom: 0.25rem;
     font-size: 1rem;
 }
@@ -376,11 +376,18 @@ h4 {
     margin-top: 0;
 }
 
-.about-section {
+/* Shared disclosure-triangle treatment for both About's and Resume's
+   collapsible sections — visually identical, they differ only in
+   default open/closed state (set via the `open` attribute per
+   instance in the markup) and which script persists that state
+   (about-sections.js vs resume-sections.js), not in appearance. */
+.about-section,
+.resume-section {
     margin-bottom: 1rem;
 }
 
-.about-section > summary {
+.about-section > summary,
+.resume-section > summary {
     cursor: pointer;
     list-style: none;
     display: flex;
@@ -389,14 +396,16 @@ h4 {
 }
 
 /* Safari/WebKit renders its own marker outside the list-style mechanism */
-.about-section > summary::-webkit-details-marker {
+.about-section > summary::-webkit-details-marker,
+.resume-section > summary::-webkit-details-marker {
     display: none;
 }
 
 /* Custom marker, guaranteed centered against the heading via flexbox
    align-items — the native marker doesn't scale/center against a
    larger nested heading's font metrics, this does. */
-.about-section > summary::before {
+.about-section > summary::before,
+.resume-section > summary::before {
     content: "▶";
     display: inline-block;
     font-size: 0.75em;
@@ -404,11 +413,13 @@ h4 {
     transition: transform 0.15s ease;
 }
 
-.about-section[open] > summary::before {
+.about-section[open] > summary::before,
+.resume-section[open] > summary::before {
     transform: rotate(90deg);
 }
 
-.about-section > summary h2 {
+.about-section > summary h2,
+.resume-section > summary h2 {
     display: inline;
     margin: 0;
 }
@@ -431,4 +442,31 @@ h4 {
 time {
     color: var(--color-muted);
     font-size: 0.9rem;
+}
+
+/* Print support for the Resume page (guntherjh/guntherjh.github.io#35)
+   — scoped to pages containing .resume-section via :has(), rather
+   than unconditionally hiding chrome on every page's print output,
+   since that wasn't asked for and isn't this stylesheet's call to
+   make for pages other than Resume. */
+@media print {
+    body:has(.resume-section) .site-header,
+    body:has(.resume-section) .site-footer,
+    body:has(.resume-section) .skip-link {
+        display: none;
+    }
+
+    /* The disclosure triangle is a screen-only interaction affordance,
+       meaningless on paper. */
+    .resume-section > summary::before {
+        display: none;
+    }
+
+    /* A printed page can't carry interactive toggle state — show every
+       Resume section's content regardless of whether a visitor had
+       collapsed it on screen. Overrides the browser's own UA rule that
+       hides a closed <details>'s content. */
+    .resume-section:not([open]) > *:not(summary) {
+        display: block !important;
+    }
 }

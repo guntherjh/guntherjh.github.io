@@ -1,5 +1,5 @@
-// Persists which About page sections (About Me / About this site / Resume)
-// are expanded across page loads via localStorage. Native vanilla JS, no
+// Persists which About page sections (About Me / About this site) are
+// expanded across page loads via localStorage. Native vanilla JS, no
 // dependency — per CODING_STANDARDS.md, this is JS used only because native
 // <details> has no cross-page-load persistence mechanism of its own.
 //
