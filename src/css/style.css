@@ -26,6 +26,10 @@
     --color-muted: #57606a;
     --color-accent: #0969da;
     --color-border: #c7c7cf;
+    /* Theme-toggle thumb icons, masked shapes (see .theme-toggle-thumb::before) —
+       theme-independent, so defined once here rather than per palette block. */
+    --icon-sun: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41'/%3E%3C/svg%3E");
+    --icon-moon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z'/%3E%3C/svg%3E");
 }
 
 html[data-theme="light"] {
@@ -157,15 +161,13 @@ a {
 }
 
 .theme-toggle-thumb {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    /* block, not inline (its default as a <span>) — needed for
+       width/height to apply so the ::before icon has a box to fill. */
+    display: block;
     width: 1.1rem;
     height: 1.1rem;
     border-radius: 50%;
     background: var(--color-text);
-    font-size: 0.65rem;
-    line-height: 1;
     transition:
         transform 0.15s ease,
         background 0.15s ease;
@@ -177,21 +179,28 @@ a {
    near-max-contrast pairs (15.7:1 light / 11.6:1 dark, see palette
    comment at the top of this file).
 
-   The pseudo-element gets its own explicit flex centering (not just
-   relying on the parent's) because Unicode symbol glyphs like ☀/☾
-   commonly don't sit centered within their own font metrics — filling
-   the thumb exactly (width/height: 100%) and centering the glyph
-   within that exact box is more reliable than centering the
-   pseudo-element as a flex item and hoping the glyph centers itself. */
+   Rendered as an SVG shape via mask-image + background-color, not a
+   Unicode glyph (☀/☾) with a text color — Unicode symbol glyphs are
+   drawn from whatever font the browser substitutes for that codepoint,
+   and those substitutes have inconsistent vertical metrics across
+   browsers/platforms (a glyph centered in Firefox sat visibly off
+   center in Chrome/Edge). A masked SVG has no font metrics to disagree
+   about — mask-size/position are exact box percentages, so the icon
+   lands in the same spot in every browser. */
 .theme-toggle-thumb::before {
-    content: "☀";
-    color: var(--color-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    content: "";
+    display: block;
     width: 100%;
     height: 100%;
-    margin-bottom: 2px;
+    background-color: var(--color-bg);
+    -webkit-mask-image: var(--icon-sun);
+    mask-image: var(--icon-sun);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 65%;
+    mask-size: 65%;
 }
 
 /* Travel distance: track content area (2.75rem - 2 × 0.15rem padding)
@@ -215,8 +224,9 @@ html[data-theme="dark"] .theme-toggle-thumb {
 }
 
 html[data-theme="dark"] .theme-toggle-thumb::before {
-    content: "☾";
-    color: var(--color-text);
+    background-color: var(--color-text);
+    -webkit-mask-image: var(--icon-moon);
+    mask-image: var(--icon-moon);
 }
 
 /* Mobile controls: hidden entirely above the breakpoint. <details> is
