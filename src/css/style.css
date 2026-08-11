@@ -5,182 +5,182 @@
 */
 
 :root {
-  --color-text: #1a1a1a;
-  --color-bg: #ffffff;
-  --color-muted: #666666;
-  --color-accent: #205e78;
-  --color-border: #e0e0e0;
-  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --measure: 42rem;
+    --color-text: #1a1a1a;
+    --color-bg: #ffffff;
+    --color-muted: #666666;
+    --color-accent: #205e78;
+    --color-border: #e0e0e0;
+    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --measure: 42rem;
 }
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: var(--font-body);
-  color: var(--color-text);
-  background: var(--color-bg);
-  line-height: 1.5;
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background: var(--color-bg);
+    line-height: 1.5;
 }
 
 a {
-  color: var(--color-accent);
+    color: var(--color-accent);
 }
 
 .skip-link {
-  position: absolute;
-  top: -3rem;
-  left: 0;
-  background: var(--color-accent);
-  color: #fff;
-  padding: 0.5rem 1rem;
-  z-index: 100;
-  transition: top 0.1s ease-in-out;
+    position: absolute;
+    top: -3rem;
+    left: 0;
+    background: var(--color-accent);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    z-index: 100;
+    transition: top 0.1s ease-in-out;
 }
 
 .skip-link:focus {
-  top: 0;
+    top: 0;
 }
 
 .site-header,
 .site-main,
 .site-footer {
-  max-width: var(--measure);
-  margin: 0 auto;
-  padding: 1.5rem 1rem;
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
 }
 
 .site-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid var(--color-border);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .site-title {
-  font-weight: 700;
-  text-decoration: none;
-  color: var(--color-text);
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--color-text);
 }
 
 .site-nav a {
-  margin-left: 1rem;
-  text-decoration: none;
+    margin-left: 1rem;
+    text-decoration: none;
 }
 
 .site-nav a:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 .site-footer {
-  color: var(--color-muted);
-  font-size: 0.875rem;
-  border-top: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    border-top: 1px solid var(--color-border);
 }
 
 h1,
 h2,
 h3,
 h4 {
-  line-height: 1.25;
+    line-height: 1.25;
 }
 
 .tagline {
-  color: var(--color-muted);
-  margin-top: -0.5rem;
+    color: var(--color-muted);
+    margin-top: -0.5rem;
 }
 
 .job {
-  margin-bottom: 2rem;
+    margin-bottom: 2rem;
 }
 
 .job h4 {
-  margin-bottom: 0.25rem;
+    margin-bottom: 0.25rem;
 }
 
 .job .where {
-  font-weight: 400;
-  color: var(--color-muted);
+    font-weight: 400;
+    color: var(--color-muted);
 }
 
 .job .dates {
-  color: var(--color-muted);
-  margin-top: 0;
-  font-size: 0.9rem;
+    color: var(--color-muted);
+    margin-top: 0;
+    font-size: 0.9rem;
 }
 
 .skill-group {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 
 .skill-group h4 {
-  margin-bottom: 0.25rem;
-  font-size: 1rem;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
 }
 
 .skill-group p {
-  margin-top: 0;
-  color: var(--color-muted);
+    margin-top: 0;
+    color: var(--color-muted);
 }
 
 .about-section {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 
 .about-section > summary {
-  cursor: pointer;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 /* Safari/WebKit renders its own marker outside the list-style mechanism */
 .about-section > summary::-webkit-details-marker {
-  display: none;
+    display: none;
 }
 
 /* Custom marker, guaranteed centered against the heading via flexbox
    align-items — the native marker doesn't scale/center against a
    larger nested heading's font metrics, this does. */
 .about-section > summary::before {
-  content: "▶";
-  display: inline-block;
-  font-size: 0.75em;
-  color: var(--color-muted);
-  transition: transform 0.15s ease;
+    content: "▶";
+    display: inline-block;
+    font-size: 0.75em;
+    color: var(--color-muted);
+    transition: transform 0.15s ease;
 }
 
 .about-section[open] > summary::before {
-  transform: rotate(90deg);
+    transform: rotate(90deg);
 }
 
 .about-section > summary h2 {
-  display: inline;
-  margin: 0;
+    display: inline;
+    margin: 0;
 }
 
 .post-list {
-  list-style: none;
-  padding: 0;
+    list-style: none;
+    padding: 0;
 }
 
 .post-list li {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.25rem 1rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--color-border);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .post-date,
 time {
-  color: var(--color-muted);
-  font-size: 0.9rem;
+    color: var(--color-muted);
+    font-size: 0.9rem;
 }

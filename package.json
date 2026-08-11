@@ -1,23 +1,23 @@
 {
-  "name": "guntherjh.github.io",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "description": "Personal site of John Henry Gunther",
-  "scripts": {
-    "build": "eleventy",
-    "serve": "eleventy --serve",
-    "start": "eleventy --serve",
-    "lint": "eslint .",
-    "format": "prettier --write eleventy.config.js \"src/_data/**/*.js\" \"src/js/**/*.js\"",
-    "format:check": "prettier --check eleventy.config.js \"src/_data/**/*.js\" \"src/js/**/*.js\""
-  },
-  "devDependencies": {
-    "@11ty/eleventy": "^3.1.6",
-    "@11ty/eleventy-plugin-rss": "^3.0.0",
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.8.1",
-    "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.9.6"
-  }
+    "name": "guntherjh.github.io",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Personal site of John Henry Gunther",
+    "scripts": {
+        "build": "eleventy",
+        "serve": "eleventy --serve",
+        "start": "eleventy --serve",
+        "lint": "eslint .",
+        "format": "prettier --write eleventy.config.js package.json \"src/_data/**/*.js\" \"src/js/**/*.js\" \"src/css/**/*.css\" \"src/**/*.json\"",
+        "format:check": "prettier --check eleventy.config.js package.json \"src/_data/**/*.js\" \"src/js/**/*.js\" \"src/css/**/*.css\" \"src/**/*.json\""
+    },
+    "devDependencies": {
+        "@11ty/eleventy": "^3.1.6",
+        "@11ty/eleventy-plugin-rss": "^3.0.0",
+        "@eslint/js": "^10.0.1",
+        "eslint": "^10.8.1",
+        "eslint-config-prettier": "^10.1.8",
+        "prettier": "^3.9.6"
+    }
 }
