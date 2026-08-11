@@ -1,11 +1,18 @@
 import js from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
 
-export default [
-  js.configs.recommended,
+const jsFiles = ["eleventy.config.js", "src/_data/**/*.js", "src/js/**/*.js"];
 
+export default [
   {
     ignores: ["_site/**", "node_modules/**"],
+  },
+
+  // eslint:recommended, explicitly scoped to jsFiles so a stray .js file
+  // elsewhere in the repo doesn't get linted with no globals defined.
+  {
+    files: jsFiles,
+    ...js.configs.recommended,
   },
 
   // Node-context files: run under Node during the Eleventy build.
@@ -14,10 +21,6 @@ export default [
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
-      globals: {
-        process: "readonly",
-        console: "readonly",
-      },
     },
   },
 
@@ -30,9 +33,7 @@ export default [
       sourceType: "script",
       globals: {
         document: "readonly",
-        window: "readonly",
         localStorage: "readonly",
-        console: "readonly",
       },
     },
   },
