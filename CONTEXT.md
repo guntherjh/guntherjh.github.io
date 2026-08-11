@@ -5,7 +5,7 @@ Personal site for John Henry Gunther — a Home/About/Blog site rebuilt with Ele
 ## Language
 
 **Page**:
-A top-level, non-chronological section of the site (Home, About, Blog index).
+A top-level, non-chronological section of the site (Home, About, Resume, Blog index).
 _Avoid_: Section
 
 **Post**:
@@ -21,5 +21,5 @@ The About page's subsection describing the site itself — what it's built with 
 _Avoid_: Colophon, meta section
 
 **Resume**:
-The About page's subsection covering career history (work experience, education, skills) and contact information.
-_Avoid_: CV, Resume page
+Its own top-level Page (not an About subsection) covering career history: Work Experience, Education, Skills, and Contact. Linked from the nav and from a short pointer on the About page.
+_Avoid_: CV, About's Resume subsection (retired — Resume is no longer nested under About)
