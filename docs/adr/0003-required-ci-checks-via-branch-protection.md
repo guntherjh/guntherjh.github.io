@@ -1,0 +1,3 @@
+# Required CI checks (lint, format, build) via branch protection
+
+CODING_STANDARDS.md previously relied on a manual, unenforced "verify before committing" step, and master had zero branch protection — any PR could merge regardless of whether it built, linted, or was formatted correctly. We added ESLint (eslint:recommended) and Prettier as required GitHub Actions checks (lint, format, build — three separately-named jobs), with branch protection on master requiring all three to pass before merge. This trades a small amount of tooling/CI overhead for a personal, JS-light codebase against consistent enforcement instead of relying on memory alone.
