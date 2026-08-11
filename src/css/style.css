@@ -195,17 +195,26 @@ a {
 }
 
 /* Travel distance: track content area (2.75rem - 2 × 0.15rem padding)
-   minus the thumb's own width = 2.45rem - 1.1rem = 1.35rem. */
-.theme-toggle[aria-checked="true"] {
+   minus the thumb's own width = 2.45rem - 1.1rem = 1.35rem.
+
+   Deliberately keyed off html[data-theme="dark"], NOT [aria-checked] —
+   data-theme is set by the pre-paint inline script in base.njk, before
+   first paint, so the switch's visual state always matches the actual
+   page theme immediately. aria-checked is only corrected once
+   theme-toggle.js runs; if it were the visual source of truth too, a
+   dark-mode page load would flash the switch showing "off" (or show
+   it wrong permanently if that script failed to run) even though the
+   page itself was already correctly dark. */
+html[data-theme="dark"] .theme-toggle {
     background: var(--color-accent);
 }
 
-.theme-toggle[aria-checked="true"] .theme-toggle-thumb {
+html[data-theme="dark"] .theme-toggle-thumb {
     transform: translateX(1.35rem);
     background: var(--color-bg);
 }
 
-.theme-toggle[aria-checked="true"] .theme-toggle-thumb::before {
+html[data-theme="dark"] .theme-toggle-thumb::before {
     content: "☾";
     color: var(--color-text);
 }

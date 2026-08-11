@@ -34,7 +34,12 @@
          breakpoint (see style.css). Independent from the mobile copy
          below — plain display:none/flex toggling only, not relying on
          overriding <details>'s native closed-content hiding, which
-         turned out not to be reliably overridable that way. -->
+         turned out not to be reliably overridable that way.
+
+         DUPLICATE MARKUP WARNING: the nav links and toggle button here
+         are repeated verbatim in the mobile <details> block below.
+         Keep both in sync — adding/removing a nav link or changing the
+         toggle button's markup/label means editing both copies. -->
     <div class="site-header-controls">
       <nav class="site-nav">
         <a href="/">Home</a>
@@ -47,7 +52,9 @@
     </div>
 
     <!-- Mobile: hamburger + overlay panel (position: absolute, doesn't
-         affect header height when open), hidden above the breakpoint. -->
+         affect header height when open), hidden above the breakpoint.
+         DUPLICATE MARKUP — see the matching warning on
+         .site-header-controls above; keep both copies in sync. -->
     <details class="nav-toggle">
       <summary class="nav-toggle-summary" aria-label="Menu">
         <span aria-hidden="true">☰</span>
@@ -73,6 +80,13 @@
     <p>&copy; {{ buildTime | readableDate }} {{ metadata.title }}. <a href="/feed.xml">RSS</a></p>
   </footer>
 
-  <script src="/js/theme-toggle.js" defer></script>
+  <!-- No defer: this is the last thing in <body>, so nothing else is
+       blocked, and running it as soon as the parser reaches this point
+       (rather than waiting for defer's "after full document parse"
+       timing) tightens the window before aria-checked is corrected to
+       match the already-painted theme (see the CSS comment on
+       html[data-theme="dark"] .theme-toggle for why the switch's
+       *visual* state doesn't depend on this timing at all). -->
+  <script src="/js/theme-toggle.js"></script>
 </body>
 </html>
