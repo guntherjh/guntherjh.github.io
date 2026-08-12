@@ -39,3 +39,46 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Audits the real production URL with Lighthouse and commits the results
+  # (see scripts/lighthouse-audit.mjs, and CONTEXT.md's Lighthouse Snapshot
+  # entry) for the About page's Lighthouse Widget to render at the next
+  # build. Deliberately its own job with needs: deploy, not folded into
+  # build/deploy or a separate workflow_run-triggered file — see
+  # docs/research/lighthouse-widget.md for the tradeoffs considered
+  # (guntherjh/guntherjh.github.io#41).
+  #
+  # Own Node 22 setup step (build/deploy stay on Node 20) — the lighthouse
+  # npm package requires it.
+  #
+  # The commit below uses the default GITHUB_TOKEN, not a PAT — confirmed
+  # via GitHub's own docs (see the research doc above) that GITHUB_TOKEN-
+  # authored pushes don't trigger other push-triggered workflows, so this
+  # can't recursively re-trigger this same deploy.yml.
+  lighthouse:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Wait for the deploy to propagate
+        run: sleep 90
+      - name: Run Lighthouse audits
+        run: npm run lighthouse
+      - name: Commit the Lighthouse Snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/_data/lighthouse.json
+          if git diff --staged --quiet; then
+            echo "No change in Lighthouse results, nothing to commit."
+          else
+            git commit -m "Update Lighthouse Snapshot"
+            git push
+          fi

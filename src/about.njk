@@ -12,6 +12,38 @@ layout: layouts/base.njk
 <details class="about-section" data-section="site">
   <summary><h2>This site</h2></summary>
   <p>Work in progress.</p>
+
+  <div class="lighthouse-widget">
+    <table>
+      <caption>Lighthouse scores, last measured {{ lighthouse.capturedAt | readableDate }}</caption>
+      <thead>
+        <tr>
+          <th scope="col">Page</th>
+          <th scope="col" abbr="Performance">Perf</th>
+          <th scope="col" abbr="Accessibility">A11y</th>
+          <th scope="col" abbr="Best Practices">BP</th>
+          <th scope="col">SEO</th>
+          <th scope="col" abbr="Largest Contentful Paint">LCP</th>
+          <th scope="col" abbr="Cumulative Layout Shift">CLS</th>
+          <th scope="col" abbr="Total Blocking Time">TBT</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for label, page in lighthouse.pages %}
+        <tr>
+          <th scope="row">{{ label }}</th>
+          <td>{{ page.scores.performance }}</td>
+          <td>{{ page.scores.accessibility }}</td>
+          <td>{{ page.scores["best-practices"] }}</td>
+          <td>{{ page.scores.seo }}</td>
+          <td>{{ (page.lcp / 1000) | round(1) }}s</td>
+          <td>{{ page.cls }}</td>
+          <td>{{ page.tbt | round }}ms</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </details>
 
 <p>See my full <a href="/resume/">Resume</a>.</p>

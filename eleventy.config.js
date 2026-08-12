@@ -11,12 +11,16 @@ export default function (eleventyConfig) {
 	// even before any posts exist.
 	eleventyConfig.addGlobalData("buildTime", () => new Date());
 
+	// new Date(dateObj) rather than using dateObj directly — accepts a
+	// string (e.g. JSON data like src/_data/lighthouse.json's capturedAt)
+	// as well as an already-parsed Date (e.g. buildTime, post front
+	// matter dates), same coercion isoDate below already relies on.
 	eleventyConfig.addFilter("readableDate", (dateObj) =>
 		new Intl.DateTimeFormat("en-US", {
 			year: "numeric",
 			month: "long",
 			day: "numeric",
-		}).format(dateObj),
+		}).format(new Date(dateObj)),
 	);
 
 	eleventyConfig.addFilter("isoDate", (dateObj) =>

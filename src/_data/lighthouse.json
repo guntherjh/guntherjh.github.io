@@ -1,0 +1,49 @@
+{
+	"capturedAt": "2026-08-12T11:52:39.643Z",
+	"pages": {
+		"Home": {
+			"scores": {
+				"performance": 100,
+				"accessibility": 100,
+				"best-practices": 96,
+				"seo": 100
+			},
+			"lcp": 800.638,
+			"cls": 0,
+			"tbt": 0
+		},
+		"About": {
+			"scores": {
+				"performance": 100,
+				"accessibility": 100,
+				"best-practices": 100,
+				"seo": 100
+			},
+			"lcp": 796.8478,
+			"cls": 0,
+			"tbt": 0
+		},
+		"Resume": {
+			"scores": {
+				"performance": 100,
+				"accessibility": 100,
+				"best-practices": 100,
+				"seo": 100
+			},
+			"lcp": 801.8422,
+			"cls": 0,
+			"tbt": 0
+		},
+		"Blog": {
+			"scores": {
+				"performance": 100,
+				"accessibility": 100,
+				"best-practices": 100,
+				"seo": 100
+			},
+			"lcp": 788.5533,
+			"cls": 0,
+			"tbt": 0
+		}
+	}
+}
