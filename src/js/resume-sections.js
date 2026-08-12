@@ -16,33 +16,33 @@
 // <details> behavior and start open per their `open` attribute — they
 // just don't remember a visitor's collapse choices between visits.
 (function () {
-    const STORAGE_KEY = "resume-collapsed-sections";
-    const sections = document.querySelectorAll(".resume-section");
+	const STORAGE_KEY = "resume-collapsed-sections";
+	const sections = document.querySelectorAll(".resume-section");
 
-    function loadCollapsed() {
-        try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-        } catch {
-            return [];
-        }
-    }
+	function loadCollapsed() {
+		try {
+			return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+		} catch {
+			return [];
+		}
+	}
 
-    function saveCollapsed() {
-        const collapsed = Array.from(sections)
-            .filter((section) => !section.open)
-            .map((section) => section.dataset.section);
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(collapsed));
-        } catch {
-            // localStorage unavailable — sections still work, just won't persist.
-        }
-    }
+	function saveCollapsed() {
+		const collapsed = Array.from(sections)
+			.filter((section) => !section.open)
+			.map((section) => section.dataset.section);
+		try {
+			localStorage.setItem(STORAGE_KEY, JSON.stringify(collapsed));
+		} catch {
+			// localStorage unavailable — sections still work, just won't persist.
+		}
+	}
 
-    const collapsed = loadCollapsed();
-    sections.forEach((section) => {
-        if (collapsed.indexOf(section.dataset.section) !== -1) {
-            section.open = false;
-        }
-        section.addEventListener("toggle", saveCollapsed);
-    });
+	const collapsed = loadCollapsed();
+	sections.forEach((section) => {
+		if (collapsed.indexOf(section.dataset.section) !== -1) {
+			section.open = false;
+		}
+		section.addEventListener("toggle", saveCollapsed);
+	});
 })();
