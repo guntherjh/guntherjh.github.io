@@ -40,7 +40,12 @@
 	},
 	"overrides": [
 		{
-			"includes": ["eleventy.config.js", "src/_data/**/*.js", "src/js/**/*.js"],
+			"includes": [
+				"eleventy.config.js",
+				"src/_data/**/*.js",
+				"src/js/**/*.js",
+				"scripts/**/*.mjs"
+			],
 			"linter": {
 				"rules": {
 					"complexity": {
@@ -110,7 +115,11 @@
 			}
 		},
 		{
-			"includes": ["eleventy.config.js", "src/_data/**/*.js"],
+			"includes": [
+				"eleventy.config.js",
+				"src/_data/**/*.js",
+				"scripts/**/*.mjs"
+			],
 			"javascript": { "globals": [] }
 		},
 		{

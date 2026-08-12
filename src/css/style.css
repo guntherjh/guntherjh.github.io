@@ -19,6 +19,7 @@
 
 :root {
 	--font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	--font-mono: ui-monospace, "SF Mono", Consolas, monospace;
 	--measure: 42rem;
 	--color-bg: #f2f2f4;
 	--color-panel: #e4e4e8;
@@ -351,7 +352,7 @@ h4 {
 	border-radius: 4px;
 	padding: 0.05rem 0.4rem;
 	font-size: 0.75rem;
-	font-family: ui-monospace, "SF Mono", Consolas, monospace;
+	font-family: var(--font-mono);
 	color: var(--color-muted);
 	margin-top: 0;
 }
@@ -442,6 +443,52 @@ h4 {
 time {
 	color: var(--color-muted);
 	font-size: 0.9rem;
+}
+
+/* Lighthouse widget (guntherjh/guntherjh.github.io#41): a compact table,
+   not cards/badges — 4 pages × 7 metrics is genuinely tabular data, and
+   <table> is the correct semantic element for it (scoped headers, an
+   `abbr` attribute on abbreviated column headers for assistive tech).
+   overflow-x: auto rather than a squeezed/reflowed layout on narrow
+   screens — 8 columns won't fit a phone width no matter what, so letting
+   the table scroll horizontally (checked at a narrow mobile width, see
+   CODING_STANDARDS.md's Responsive design section) keeps every cell
+   readable instead of cramming or truncating. */
+.lighthouse-widget {
+	margin-top: 1rem;
+	overflow-x: auto;
+}
+
+.lighthouse-widget table {
+	border-collapse: collapse;
+	width: 100%;
+	font-size: 0.85rem;
+}
+
+.lighthouse-widget caption {
+	text-align: left;
+	color: var(--color-muted);
+	font-size: 0.8rem;
+	margin-bottom: 0.5rem;
+}
+
+.lighthouse-widget th,
+.lighthouse-widget td {
+	padding: 0.35rem 0.5rem;
+	text-align: left;
+	white-space: nowrap;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.lighthouse-widget th[scope="col"] {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--color-muted);
+}
+
+.lighthouse-widget td {
+	font-family: var(--font-mono);
+	color: var(--color-muted);
 }
 
 /* Print support for the Resume page (guntherjh/guntherjh.github.io#35)
