@@ -20,6 +20,7 @@ jobs:
     permissions:
       contents: write
       actions: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,8 +35,16 @@ jobs:
           STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
           GH_PAT_SECRETS_WRITE: ${{ secrets.GH_PAT_SECRETS_WRITE }}
         run: npm run strava-refresh
-      - name: Commit the Strava Snapshot
-        id: commit
+      # Lands the Snapshot via a PR + auto-merge, not a direct push to
+      # master — master's branch protection requires status checks that
+      # only run on pull requests, with no bypass for any actor (including
+      # GITHUB_TOKEN or even an admin), so a direct push can never succeed
+      # there (confirmed via a real failing run,
+      # guntherjh/guntherjh.github.io#47).
+      - name: Open a PR with the Strava Snapshot and enable auto-merge
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -43,20 +52,42 @@ jobs:
           if git diff --staged --quiet; then
             echo "No change in Strava data, nothing to commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            git commit -m "Update Strava Snapshot"
-            git push
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-      # Only if the Snapshot actually changed — no point redeploying
-      # identical content. Uses the default GITHUB_TOKEN, not a PAT:
+          branch="data/strava-snapshot-${{ github.run_id }}"
+          git checkout -b "$branch"
+          git commit -m "Update Strava Snapshot"
+          git push origin "$branch"
+          gh pr create --title "Update Strava Snapshot" \
+            --body "Automated update from the \`refresh\` job — see run ${{ github.run_id }}." \
+            --base master --head "$branch"
+          gh pr merge "$branch" --auto --squash --delete-branch
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+      # Unlike the Lighthouse job (which doesn't need this step at all —
+      # see deploy.yml), Strava's freshness is explicitly NOT merge-tied,
+      # so this job needs to know the merge actually completed before it
+      # can force a redeploy — auto-merge doesn't happen synchronously
+      # within the step above, it just gets enabled and completes once
+      # checks.yml passes, on GitHub's own time.
+      - name: Wait for the PR to merge
+        if: steps.pr.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for i in $(seq 1 30); do
+            state=$(gh pr view "${{ steps.pr.outputs.branch }}" --json state --jq .state)
+            [ "$state" = "MERGED" ] && exit 0
+            sleep 10
+          done
+          echo "Timed out waiting for the Strava Snapshot PR to merge (final state: $state)." >&2
+          exit 1
       # workflow_dispatch is an explicit, documented exception to the
       # "GITHUB_TOKEN-authored events don't trigger new workflow runs"
       # suppression (see guntherjh/guntherjh.github.io#26's resolution and
-      # docs/research/lighthouse-widget.md, which confirmed this same fact
-      # for the Lighthouse job's own commit step).
+      # docs/research/lighthouse-widget.md).
       - name: Trigger a redeploy
-        if: steps.commit.outputs.changed == 'true'
+        if: steps.pr.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run deploy.yml
