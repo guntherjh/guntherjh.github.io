@@ -1,49 +1,49 @@
 {
-	"capturedAt": "2026-08-12T11:52:39.643Z",
-	"pages": {
-		"Home": {
-			"scores": {
-				"performance": 100,
-				"accessibility": 100,
-				"best-practices": 96,
-				"seo": 100
-			},
-			"lcp": 800.638,
-			"cls": 0,
-			"tbt": 0
-		},
-		"About": {
-			"scores": {
-				"performance": 100,
-				"accessibility": 100,
-				"best-practices": 100,
-				"seo": 100
-			},
-			"lcp": 796.8478,
-			"cls": 0,
-			"tbt": 0
-		},
-		"Resume": {
-			"scores": {
-				"performance": 100,
-				"accessibility": 100,
-				"best-practices": 100,
-				"seo": 100
-			},
-			"lcp": 801.8422,
-			"cls": 0,
-			"tbt": 0
-		},
-		"Blog": {
-			"scores": {
-				"performance": 100,
-				"accessibility": 100,
-				"best-practices": 100,
-				"seo": 100
-			},
-			"lcp": 788.5533,
-			"cls": 0,
-			"tbt": 0
-		}
-	}
+  "capturedAt": "2026-08-13T16:48:01.914Z",
+  "pages": {
+    "Home": {
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 96,
+        "seo": 100
+      },
+      "lcp": 792.152,
+      "cls": 0,
+      "tbt": 0
+    },
+    "About": {
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "lcp": 771.6642,
+      "cls": 0,
+      "tbt": 0
+    },
+    "Resume": {
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "lcp": 782.606,
+      "cls": 0,
+      "tbt": 0
+    },
+    "Blog": {
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "lcp": 789.4757,
+      "cls": 0,
+      "tbt": 0
+    }
+  }
 }
