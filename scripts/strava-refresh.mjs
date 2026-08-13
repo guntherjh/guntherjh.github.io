@@ -15,6 +15,7 @@
 import { execFileSync } from "node:child_process";
 import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import { formatWithBiome } from "./lib/format-json.mjs";
 
 const CLIENT_ID = process.env.STRAVA_CLIENT_ID;
 const CLIENT_SECRET = process.env.STRAVA_CLIENT_SECRET;
@@ -153,6 +154,7 @@ async function main() {
 		stats: buildStats(rawStats),
 	};
 	await writeFile(OUTPUT_PATH, `${JSON.stringify(snapshot, null, 2)}\n`);
+	formatWithBiome(OUTPUT_PATH);
 	console.log(`Wrote ${OUTPUT_PATH}`);
 }
 

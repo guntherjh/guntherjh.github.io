@@ -23,6 +23,7 @@ import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { launch } from "chrome-launcher";
 import lighthouse from "lighthouse";
+import { formatWithBiome } from "./lib/format-json.mjs";
 
 const BASE_URL = "https://johnhenrygunther.com";
 const PAGES = [
@@ -75,6 +76,7 @@ async function main() {
 
 		const snapshot = { capturedAt: new Date().toISOString(), pages };
 		await writeFile(OUTPUT_PATH, `${JSON.stringify(snapshot, null, 2)}\n`);
+		formatWithBiome(OUTPUT_PATH);
 		console.log(`Wrote ${OUTPUT_PATH}`);
 	} finally {
 		await chrome.kill();
