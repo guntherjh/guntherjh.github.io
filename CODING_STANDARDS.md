@@ -12,7 +12,7 @@ Conventions this project follows in practice, written down so `/code-review` and
 - **Global data**: `src/_data/*.js` (e.g. `metadata.js`) for site-wide values — title, tagline, URLs, author info. Reference these via `{{ metadata.* }}` in templates rather than hardcoding them inline.
 - **Passthrough copy**: static assets that need to reach the output unprocessed (CSS, `CNAME`) are registered explicitly in `eleventy.config.js` via `addPassthroughCopy` — don't rely on implicit copying.
 - **ESM throughout**: `package.json` sets `"type": "module"`; config and data files use `import`/`export`, not `require`/`module.exports`.
-- **`scripts/`**: CI/build-time Node scripts that aren't Eleventy config or template data — distinct from `src/js/`, which is browser-shipped JS passthrough-copied to the output. `scripts/lighthouse-audit.mjs` and `scripts/strava-refresh.mjs` (see the JavaScript section below for both).
+- **`scripts/`**: CI/build-time Node scripts that aren't Eleventy config or template data — distinct from `src/js/`, which is browser-shipped JS passthrough-copied to the output. `scripts/lighthouse-audit.mjs` and `scripts/strava-refresh.mjs` (see the JavaScript section below for both), sharing `scripts/lib/format-json.mjs`.
 
 ## CSS
 
