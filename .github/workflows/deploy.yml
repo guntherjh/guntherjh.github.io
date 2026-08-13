@@ -57,14 +57,44 @@ jobs:
   # actor (including GITHUB_TOKEN or even an admin), so a direct push can
   # never succeed there (confirmed via a real failing run,
   # guntherjh/guntherjh.github.io#47). No explicit redeploy step needed
-  # afterward: the PR's merge is a genuine push to master, which triggers
-  # this same workflow's own push trigger — matching this widget's already-
-  # decided "freshness tied to merge activity only" behavior, not something
-  # this job needs to force separately (contrast with the Strava widget's
-  # Refresh Job, which explicitly does need to force a redeploy — see
-  # strava-refresh.yml).
+  # afterward: the PR's merge is a genuine push to master (auto-merge uses a
+  # PAT, not GITHUB_TOKEN, so it isn't suppressed from re-triggering push
+  # events), which triggers this same workflow's own push trigger —
+  # matching this widget's already-decided "freshness tied to merge
+  # activity only" behavior, not something this job needs to force
+  # separately (contrast with the Strava widget's Refresh Job, which is
+  # triggered on a schedule rather than by this workflow's push trigger —
+  # see strava-refresh.yml).
+  #
+  # `if:` guards against the self-triggering loop this naturally produces:
+  # every real Lighthouse audit differs slightly from the last (network/
+  # timing variance in metrics like LCP), so a re-audit triggered by this
+  # job's own prior Snapshot-update merge would almost always find a new
+  # diff and commit again — merge, redeploy, re-audit, forever (observed
+  # live in production: guntherjh/guntherjh.github.io#47's PRs #51 and #52
+  # each auto-merged and re-triggered this workflow before a third cycle
+  # was caught and cancelled mid-run). Skipping when the triggering push's
+  # own commit message contains this job's own commit message breaks the
+  # cycle (a squash-merge commit gets a "(#NN)" suffix, hence `contains()`
+  # rather than an equality check):
+  # a genuine content-changing push (or a Strava Snapshot push, or a manual
+  # workflow_dispatch, where head_commit isn't even set) still gets a fresh
+  # audit; only a push that is itself a prior Lighthouse Snapshot update
+  # does not re-audit itself.
   lighthouse:
     needs: deploy
+    # success() is explicit here — an `if:` on a job replaces the implicit
+    # "all `needs` succeeded" check entirely rather than adding to it, so
+    # without this, a failed deploy job wouldn't stop lighthouse from
+    # running anyway.
+    # NOTE: 'Update Lighthouse Snapshot' here must keep matching the
+    # commit-message input passed to land-data-pr below — `env:` isn't
+    # available in a job-level `if:` (only github/needs/vars/inputs are),
+    # so this can't be deduplicated into a shared variable; if the
+    # commit-message input ever changes, update this string too.
+    if: >-
+      success() &&
+      (github.event_name != 'push' || !contains(github.event.head_commit.message, 'Update Lighthouse Snapshot'))
     runs-on: ubuntu-latest
     # pull-requests: write isn't needed here — PR creation/merging uses a
     # PAT (see .github/actions/land-data-pr), not GITHUB_TOKEN, so this
@@ -85,6 +115,6 @@ jobs:
       - uses: ./.github/actions/land-data-pr
         with:
           file: src/_data/lighthouse.json
-          commit-message: Update Lighthouse Snapshot
+          commit-message: Update Lighthouse Snapshot # kept in sync with the `if:` guard above
           branch-prefix: data/lighthouse-snapshot
           pat: ${{ secrets.GH_PAT_PR_AUTOMATION }}
