@@ -17,6 +17,11 @@ jobs:
     # jobs) can read by default. See guntherjh/guntherjh.github.io#27's
     # resolution.
     environment: strava
+    # pull-requests: write isn't needed here — PR creation/merging uses a
+    # PAT (see .github/actions/land-data-pr), not GITHUB_TOKEN, so this
+    # job's own permissions don't need to cover that. actions: write is
+    # still needed for the redeploy trigger below (that step does use
+    # GITHUB_TOKEN, safely — see its comment).
     permissions:
       contents: write
       actions: write
@@ -34,29 +39,30 @@ jobs:
           STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
           GH_PAT_SECRETS_WRITE: ${{ secrets.GH_PAT_SECRETS_WRITE }}
         run: npm run strava-refresh
-      - name: Commit the Strava Snapshot
-        id: commit
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/_data/strava.json
-          if git diff --staged --quiet; then
-            echo "No change in Strava data, nothing to commit."
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            git commit -m "Update Strava Snapshot"
-            git push
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-      # Only if the Snapshot actually changed — no point redeploying
-      # identical content. Uses the default GITHUB_TOKEN, not a PAT:
-      # workflow_dispatch is an explicit, documented exception to the
-      # "GITHUB_TOKEN-authored events don't trigger new workflow runs"
-      # suppression (see guntherjh/guntherjh.github.io#26's resolution and
-      # docs/research/lighthouse-widget.md, which confirmed this same fact
-      # for the Lighthouse job's own commit step).
+      # Lands the Snapshot via .github/actions/land-data-pr (PR + auto-
+      # merge, waits for it to actually merge before returning) — not a
+      # direct push to master, whose branch protection requires status
+      # checks that only run on pull requests, with no bypass for any actor
+      # (confirmed via a real failing run, guntherjh/guntherjh.github.io#47).
+      - uses: ./.github/actions/land-data-pr
+        id: land
+        with:
+          file: src/_data/strava.json
+          commit-message: Update Strava Snapshot
+          branch-prefix: data/strava-snapshot
+          pat: ${{ secrets.GH_PAT_PR_AUTOMATION }}
+      # Unlike the Lighthouse job (which doesn't need this step at all —
+      # see deploy.yml), Strava's freshness is explicitly NOT merge-tied,
+      # so it forces a redeploy itself once land-data-pr confirms the
+      # merge actually completed. workflow_dispatch is an explicit,
+      # documented exception to the "GITHUB_TOKEN-authored events don't
+      # trigger new workflow runs" suppression (see
+      # guntherjh/guntherjh.github.io#26's resolution and
+      # docs/research/lighthouse-widget.md) — GITHUB_TOKEN is fine here,
+      # unlike the PR-creation step above, since workflow_dispatch doesn't
+      # have the approval-required gate pull_request does.
       - name: Trigger a redeploy
-        if: steps.commit.outputs.changed == 'true'
+        if: steps.land.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run deploy.yml

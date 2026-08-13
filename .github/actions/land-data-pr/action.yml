@@ -1,0 +1,72 @@
+name: Land a data-file update via PR + auto-merge
+description: >
+  Commits a changed data file to a fresh branch, opens a PR against master,
+  and enables auto-merge — then waits (bounded) for it to actually merge.
+  Exists because master's branch protection requires status checks that
+  only run on pull requests, with no bypass for any actor, so a direct push
+  can never succeed there (guntherjh/guntherjh.github.io#47). Shared by
+  deploy.yml's lighthouse job and strava-refresh.yml's refresh job — same
+  shape, only the file/commit message differ.
+
+inputs:
+  file:
+    description: Path (relative to repo root) of the data file to check/commit
+    required: true
+  commit-message:
+    description: Commit message for the data-file update
+    required: true
+  branch-prefix:
+    description: Prefix for the throwaway branch name (e.g. "data/lighthouse-snapshot")
+    required: true
+  pat:
+    description: >
+      A PAT (not GITHUB_TOKEN) for the gh pr create/merge calls specifically.
+      GITHUB_TOKEN-authored PRs are documented to land in an approval-required
+      state, so checks.yml's required checks would never actually run against
+      them and auto-merge would wait forever — a PAT-authored PR behaves like
+      a normal human-opened one, no such gate applies.
+    required: true
+
+outputs:
+  changed:
+    description: "'true' if a PR was opened and merged, 'false' if there was nothing to commit"
+    value: ${{ steps.commit.outputs.changed }}
+
+runs:
+  using: composite
+  steps:
+    - id: commit
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.pat }}
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add "${{ inputs.file }}"
+        if git diff --staged --quiet; then
+          echo "No change in ${{ inputs.file }}, nothing to commit."
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        branch="${{ inputs.branch-prefix }}-${{ github.run_id }}"
+        git checkout -b "$branch"
+        git commit -m "${{ inputs.commit-message }}"
+        git push origin "$branch"
+        gh pr create --title "${{ inputs.commit-message }}" \
+          --body "Automated update — see run ${{ github.run_id }}." \
+          --base master --head "$branch"
+        gh pr merge "$branch" --auto --squash --delete-branch
+        echo "changed=true" >> "$GITHUB_OUTPUT"
+        echo "branch=$branch" >> "$GITHUB_OUTPUT"
+    - if: steps.commit.outputs.changed == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.pat }}
+      run: |
+        for i in $(seq 1 30); do
+          state=$(gh pr view "${{ steps.commit.outputs.branch }}" --json state --jq .state)
+          [ "$state" = "MERGED" ] && exit 0
+          sleep 10
+        done
+        echo "Timed out waiting for the ${{ inputs.file }} PR to merge (final state: $state)." >&2
+        exit 1

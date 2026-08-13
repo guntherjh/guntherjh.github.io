@@ -51,13 +51,24 @@ jobs:
   # Own Node 22 setup step (build/deploy stay on Node 20) — the lighthouse
   # npm package requires it.
   #
-  # The commit below uses the default GITHUB_TOKEN, not a PAT — confirmed
-  # via GitHub's own docs (see the research doc above) that GITHUB_TOKEN-
-  # authored pushes don't trigger other push-triggered workflows, so this
-  # can't recursively re-trigger this same deploy.yml.
+  # Lands the Snapshot via .github/actions/land-data-pr (PR + auto-merge),
+  # not a direct push to master — master's branch protection requires
+  # status checks that only run on pull requests, with no bypass for any
+  # actor (including GITHUB_TOKEN or even an admin), so a direct push can
+  # never succeed there (confirmed via a real failing run,
+  # guntherjh/guntherjh.github.io#47). No explicit redeploy step needed
+  # afterward: the PR's merge is a genuine push to master, which triggers
+  # this same workflow's own push trigger — matching this widget's already-
+  # decided "freshness tied to merge activity only" behavior, not something
+  # this job needs to force separately (contrast with the Strava widget's
+  # Refresh Job, which explicitly does need to force a redeploy — see
+  # strava-refresh.yml).
   lighthouse:
     needs: deploy
     runs-on: ubuntu-latest
+    # pull-requests: write isn't needed here — PR creation/merging uses a
+    # PAT (see .github/actions/land-data-pr), not GITHUB_TOKEN, so this
+    # job's own permissions don't need to cover that.
     permissions:
       contents: write
     steps:
@@ -71,14 +82,9 @@ jobs:
         run: sleep 90
       - name: Run Lighthouse audits
         run: npm run lighthouse
-      - name: Commit the Lighthouse Snapshot
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/_data/lighthouse.json
-          if git diff --staged --quiet; then
-            echo "No change in Lighthouse results, nothing to commit."
-          else
-            git commit -m "Update Lighthouse Snapshot"
-            git push
-          fi
+      - uses: ./.github/actions/land-data-pr
+        with:
+          file: src/_data/lighthouse.json
+          commit-message: Update Lighthouse Snapshot
+          branch-prefix: data/lighthouse-snapshot
+          pat: ${{ secrets.GH_PAT_PR_AUTOMATION }}
