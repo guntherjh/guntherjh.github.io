@@ -445,6 +445,35 @@ time {
 	font-size: 0.9rem;
 }
 
+/* Strava Widget (guntherjh/guntherjh.github.io#24): deliberately minimal —
+   the map that settled this explicitly deferred visual design/placement
+   as its own follow-on effort once the data contract existed (see
+   CONTEXT.md's Strava Widget entry). Just enough for a plain list to read
+   reasonably, no real visual polish here. */
+.strava-widget {
+	margin-top: 1rem;
+}
+
+.strava-activities,
+.strava-stats {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.strava-activities li,
+.strava-stats li {
+	padding: 0.35rem 0;
+	border-bottom: 1px solid var(--color-border);
+	font-size: 0.9rem;
+}
+
+.strava-stats-window,
+.strava-updated {
+	color: var(--color-muted);
+	font-size: 0.8rem;
+}
+
 /* Lighthouse widget (guntherjh/guntherjh.github.io#41): a compact table,
    not cards/badges — 4 pages × 7 metrics is genuinely tabular data, and
    <table> is the correct semantic element for it (scoped headers, an

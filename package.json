@@ -12,7 +12,8 @@
 		"format": "biome format --write .",
 		"format:check": "biome format .",
 		"check": "biome ci .",
-		"lighthouse": "node scripts/lighthouse-audit.mjs"
+		"lighthouse": "node scripts/lighthouse-audit.mjs",
+		"strava-refresh": "node scripts/strava-refresh.mjs"
 	},
 	"devDependencies": {
 		"@11ty/eleventy": "^3.1.6",
