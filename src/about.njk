@@ -7,6 +7,45 @@ layout: layouts/base.njk
 <details class="about-section" data-section="me">
   <summary><h2>Me</h2></summary>
   <p>I am a front-end engineer who builds applications and components using JavaScript, HTML, and CSS. I love building cool things, especially using JavaScript. I have worked on small and large code bases and enjoy the unique challenges presented by both — today as a Senior Staff Frontend Engineer at Pendo.io.</p>
+
+  {# Strava Widget (see CONTEXT.md) — placement/visual design here are
+     deliberately minimal, not polished: guntherjh/guntherjh.github.io#24's
+     map explicitly deferred widget visual design/placement as a follow-on
+     effort once the data contract existed; this just gets it on the page.
+     Guarded with {% if strava %} since src/_data/strava.json doesn't exist
+     until the Refresh Job's first run completes — an Eleventy global data
+     file is optional, so referencing an absent one is safe, not a build
+     error. #}
+  {% if strava %}
+  <div class="strava-widget">
+    <h3>Recent Activities</h3>
+    <ul class="strava-activities">
+      {% for activity in strava.activities %}
+      <li>
+        <strong>{{ activity.type }}</strong> — {{ activity.name }} —
+        {{ activity.distance | metersToMiles | round(1) }} mi,
+        {{ (activity.moving_time / 60) | round }} min
+        — <time datetime="{{ activity.start_date }}">{{ activity.start_date | readableDate }}</time>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <h3>Recent Stats <span class="strava-stats-window">(last 4 weeks)</span></h3>
+    <ul class="strava-stats">
+      {% for sport, totals in strava.stats %}
+      <li>
+        <strong>{{ sport }}</strong>:
+        {{ totals.count }} {{ "activity" if totals.count == 1 else "activities" }},
+        {{ totals.distance | metersToMiles | round(1) }} mi
+      </li>
+      {% endfor %}
+    </ul>
+
+    <p class="strava-updated">Last updated {{ strava.capturedAt | readableDate }}</p>
+  </div>
+  {% else %}
+  <p class="strava-widget-pending">Strava activity data will appear here once the Refresh Job's first run completes.</p>
+  {% endif %}
 </details>
 
 <details class="about-section" data-section="site">

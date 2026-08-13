@@ -1,0 +1,62 @@
+name: Strava refresh
+
+# Daily, not merge-tied — see CONTEXT.md's Strava Snapshot / Refresh Job
+# entries and guntherjh/guntherjh.github.io#26's resolution (contrast with
+# the Lighthouse widget, which is deliberately merge-tied only).
+on:
+  schedule:
+    - cron: "23 11 * * *"
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    # Environment secrets, not repository secrets — only this job (which
+    # explicitly opts in here) can read them, unlike repository secrets
+    # which any job in any workflow (including PR-triggered checks.yml
+    # jobs) can read by default. See guntherjh/guntherjh.github.io#27's
+    # resolution.
+    environment: strava
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Refresh Strava data
+        env:
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
+          GH_PAT_SECRETS_WRITE: ${{ secrets.GH_PAT_SECRETS_WRITE }}
+        run: npm run strava-refresh
+      - name: Commit the Strava Snapshot
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/_data/strava.json
+          if git diff --staged --quiet; then
+            echo "No change in Strava data, nothing to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Update Strava Snapshot"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      # Only if the Snapshot actually changed — no point redeploying
+      # identical content. Uses the default GITHUB_TOKEN, not a PAT:
+      # workflow_dispatch is an explicit, documented exception to the
+      # "GITHUB_TOKEN-authored events don't trigger new workflow runs"
+      # suppression (see guntherjh/guntherjh.github.io#26's resolution and
+      # docs/research/lighthouse-widget.md, which confirmed this same fact
+      # for the Lighthouse job's own commit step).
+      - name: Trigger a redeploy
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run deploy.yml

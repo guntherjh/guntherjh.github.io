@@ -27,6 +27,10 @@ export default function (eleventyConfig) {
 		new Date(dateObj).toISOString(),
 	);
 
+	// Strava reports distance in meters (src/_data/strava.json); named here
+	// rather than inlining the 1609.34 conversion factor at each call site.
+	eleventyConfig.addFilter("metersToMiles", (meters) => meters / 1609.34);
+
 	return {
 		dir: {
 			input: "src",
