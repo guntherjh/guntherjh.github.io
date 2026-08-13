@@ -52,7 +52,6 @@ jobs:
       # data-pr to a PAT and turned out to be false, so the explicit step
       # was just causing every Strava refresh to deploy twice.
       - uses: ./.github/actions/land-data-pr
-        id: land
         with:
           file: src/_data/strava.json
           commit-message: Update Strava Snapshot
