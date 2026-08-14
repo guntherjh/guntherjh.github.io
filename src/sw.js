@@ -13,6 +13,9 @@
 // like every other file in src/js/, rather than escaping tooling coverage
 // the way .njk templates already do.
 const CACHE_VERSION = "__CACHE_VERSION__";
+// servive workers are unique to specific origins so the cache name
+// really just needs to be unique per build of this site, which
+// CACHE_VERSION provides
 const CACHE_NAME = `site-cache-${CACHE_VERSION}`;
 
 // The app shell — fetched eagerly on install so a visitor who only ever
