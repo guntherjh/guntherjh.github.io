@@ -26,6 +26,15 @@ export default function (eleventyConfig) {
 	eleventyConfig.on("eleventy.after", ({ dir }) => {
 		const swPath = `${dir.output}/sw.js`;
 		const sw = readFileSync(swPath, "utf8");
+		// Fails the build rather than silently shipping a literal
+		// "__CACHE_VERSION__" forever — a typo'd or removed placeholder
+		// would otherwise quietly break cache invalidation on every future
+		// deploy with no build-time signal that anything was wrong.
+		if (!sw.includes("__CACHE_VERSION__")) {
+			throw new Error(
+				`${swPath} is missing the __CACHE_VERSION__ placeholder — cache versioning would silently stop working.`,
+			);
+		}
 		writeFileSync(
 			swPath,
 			sw.replace("__CACHE_VERSION__", new Date().toISOString()),

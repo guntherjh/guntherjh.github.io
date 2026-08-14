@@ -77,17 +77,28 @@ self.addEventListener("fetch", (event) => {
 	// loads becomes available offline afterward, on top of the precached
 	// core above (see CODING_STANDARDS.md's Offline support entry for why
 	// this was chosen over cache-first/stale-while-revalidate).
-	event.respondWith(
-		fetch(event.request)
+	const networkFetch = fetch(event.request);
+
+	event.respondWith(networkFetch.catch(() => caches.match(event.request)));
+
+	// A separate event.waitUntil() for the cache write, not just chained
+	// off the promise passed to respondWith() above — respondWith()'s
+	// promise settles as soon as a response is available, and the browser
+	// is free to kill the worker right after that, which would abort an
+	// un-awaited cache.put() mid-write (a well-known service worker
+	// pitfall). This keeps the worker alive until the write actually
+	// finishes.
+	event.waitUntil(
+		networkFetch
 			.then((response) => {
-				if (response.ok) {
-					const copy = response.clone();
-					caches
-						.open(CACHE_NAME)
-						.then((cache) => cache.put(event.request, copy));
-				}
-				return response;
+				if (!response.ok) return;
+				return caches
+					.open(CACHE_NAME)
+					.then((cache) => cache.put(event.request, response.clone()));
 			})
-			.catch(() => caches.match(event.request)),
+			.catch(() => {
+				// Network failure already handled by respondWith's own
+				// .catch() above — nothing left to cache.
+			}),
 	);
 });
