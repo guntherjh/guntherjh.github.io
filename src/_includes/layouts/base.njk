@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="alternate" type="application/rss+xml" title="{{ metadata.title }}" href="{{ metadata.url }}/feed.xml">
   <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <!-- iOS's "Add to Home Screen" doesn't read the manifest's icons at
+       all — needs its own dedicated PNG link. -->
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="manifest" href="/manifest.webmanifest">
   <!-- Matches style.css's light/dark tokens (--color-bg) — colors the
        browser's own UI chrome (address bar, task switcher), independent
