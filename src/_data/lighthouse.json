@@ -1,16 +1,16 @@
 {
-	"capturedAt": "2026-08-14T10:54:00.529Z",
+	"capturedAt": "2026-08-14T11:01:29.883Z",
 	"pages": {
 		"Home": {
 			"scores": {
-				"performance": 100,
+				"performance": 98,
 				"accessibility": 100,
 				"best-practices": 96,
 				"seo": 100
 			},
-			"lcp": 1236.701,
+			"lcp": 1121.0639999999999,
 			"cls": 0,
-			"tbt": 56.5
+			"tbt": 68.49999999999989
 		},
 		"About": {
 			"scores": {
@@ -19,7 +19,7 @@
 				"best-practices": 100,
 				"seo": 100
 			},
-			"lcp": 765.2591,
+			"lcp": 765.1338,
 			"cls": 0,
 			"tbt": 0
 		},
@@ -30,7 +30,7 @@
 				"best-practices": 100,
 				"seo": 100
 			},
-			"lcp": 777.1653,
+			"lcp": 774.6441,
 			"cls": 0,
 			"tbt": 0
 		},
@@ -41,7 +41,7 @@
 				"best-practices": 100,
 				"seo": 100
 			},
-			"lcp": 762.6043,
+			"lcp": 762.1027,
 			"cls": 0,
 			"tbt": 0
 		}
