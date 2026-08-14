@@ -1,5 +1,5 @@
 {
-	"capturedAt": "2026-08-14T13:21:07.624Z",
+	"capturedAt": "2026-08-14T13:55:23.225Z",
 	"pages": {
 		"Home": {
 			"scores": {
@@ -8,9 +8,9 @@
 				"best-practices": 100,
 				"seo": 100
 			},
-			"lcp": 929.6815,
+			"lcp": 1016.5699999999999,
 			"cls": 0,
-			"tbt": 0
+			"tbt": 3
 		},
 		"About": {
 			"scores": {
@@ -19,7 +19,7 @@
 				"best-practices": 100,
 				"seo": 100
 			},
-			"lcp": 773.9761,
+			"lcp": 765.5956,
 			"cls": 0,
 			"tbt": 0
 		},
@@ -30,7 +30,7 @@
 				"best-practices": 100,
 				"seo": 100
 			},
-			"lcp": 912.3315,
+			"lcp": 901.9234,
 			"cls": 0,
 			"tbt": 0
 		},
@@ -41,7 +41,7 @@
 				"best-practices": 100,
 				"seo": 100
 			},
-			"lcp": 771.9922,
+			"lcp": 763.586,
 			"cls": 0,
 			"tbt": 0
 		}
