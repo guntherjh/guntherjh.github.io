@@ -1,3 +1,4 @@
+import { readFileSync, writeFileSync } from "node:fs";
 import pluginRss from "@11ty/eleventy-plugin-rss";
 
 export default function (eleventyConfig) {
@@ -5,7 +6,31 @@ export default function (eleventyConfig) {
 
 	eleventyConfig.addPassthroughCopy("src/css");
 	eleventyConfig.addPassthroughCopy("src/js");
+	eleventyConfig.addPassthroughCopy("src/icons");
 	eleventyConfig.addPassthroughCopy({ "src/CNAME": "CNAME" });
+	eleventyConfig.addPassthroughCopy({
+		"src/manifest.webmanifest": "manifest.webmanifest",
+	});
+	// src/sw.js lives outside src/js/ and copies straight to the site root
+	// — see the comment atop that file for why a service worker has to be
+	// served from "/" on GitHub Pages.
+	eleventyConfig.addPassthroughCopy({ "src/sw.js": "sw.js" });
+
+	// Stamps /sw.js's cache name with this build's timestamp — see the
+	// CACHE_VERSION comment in src/sw.js. A plain post-build string
+	// replace (not Nunjucks templating) so sw.js stays ordinary browser JS
+	// that Biome lints/formats like the rest of src/js/, rather than
+	// escaping tooling coverage the way .njk templates already do.
+	// Runs after passthrough copy (part of the same build), so _site/sw.js
+	// already exists by the time this fires.
+	eleventyConfig.on("eleventy.after", ({ dir }) => {
+		const swPath = `${dir.output}/sw.js`;
+		const sw = readFileSync(swPath, "utf8");
+		writeFileSync(
+			swPath,
+			sw.replace("__CACHE_VERSION__", new Date().toISOString()),
+		);
+	});
 
 	// Used by feed.njk so the RSS <updated> timestamp is always valid,
 	// even before any posts exist.

@@ -123,8 +123,19 @@
 			"javascript": { "globals": [] }
 		},
 		{
-			"includes": ["src/js/**/*.js"],
-			"javascript": { "globals": ["localStorage", "matchMedia", "document"] }
+			"includes": ["src/js/**/*.js", "src/sw.js"],
+			"javascript": {
+				"globals": [
+					"localStorage",
+					"matchMedia",
+					"document",
+					"navigator",
+					"window",
+					"self",
+					"caches",
+					"fetch"
+				]
+			}
 		}
 	],
 	"assist": {

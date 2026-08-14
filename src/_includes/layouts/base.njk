@@ -7,6 +7,14 @@
   <meta name="description" content="{{ description or metadata.description }}">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="alternate" type="application/rss+xml" title="{{ metadata.title }}" href="{{ metadata.url }}/feed.xml">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <!-- Matches style.css's light/dark tokens (--color-bg) — colors the
+       browser's own UI chrome (address bar, task switcher), independent
+       of manifest.webmanifest's static theme_color/background_color,
+       which only apply once the site is installed. -->
+  <meta name="theme-color" content="#f2f2f4" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#2d2d30" media="(prefers-color-scheme: dark)">
   <script>
     // Sets [data-theme] before first paint, deliberately inline (not an
     // external/deferred file) — an external script would load after the
@@ -91,5 +99,6 @@
        *visual* state doesn't depend on this timing at all). -->
   <script src="/js/theme-toggle.js"></script>
   <script src="/js/nav-toggle.js" defer></script>
+  <script src="/js/register-sw.js" defer></script>
 </body>
 </html>
