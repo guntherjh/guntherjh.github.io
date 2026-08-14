@@ -57,6 +57,12 @@ export default function (eleventyConfig) {
 		}).format(new Date(dateObj)),
 	);
 
+	eleventyConfig.addFilter("copyrightDate", (dateObj) =>
+		new Intl.DateTimeFormat("en-US", {
+			year: "numeric",
+		}).format(new Date(dateObj)),
+	);
+
 	eleventyConfig.addFilter("isoDate", (dateObj) =>
 		new Date(dateObj).toISOString(),
 	);
