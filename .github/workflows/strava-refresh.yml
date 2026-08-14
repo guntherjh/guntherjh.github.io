@@ -3,9 +3,13 @@ name: Strava refresh
 # Daily, not merge-tied — see CONTEXT.md's Strava Snapshot / Refresh Job
 # entries and guntherjh/guntherjh.github.io#26's resolution (contrast with
 # the Lighthouse widget, which is deliberately merge-tied only).
+#
+# 05:00 UTC = midnight EST. GitHub Actions cron is a fixed UTC offset with
+# no DST awareness, so this runs at 1am during EDT (spring/summer) rather
+# than shifting to stay at local midnight year-round.
 on:
   schedule:
-    - cron: "23 11 * * *"
+    - cron: "0 5 * * *"
   workflow_dispatch:
 
 jobs:
