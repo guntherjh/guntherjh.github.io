@@ -1,6 +1,13 @@
 {
-	"capturedAt": "2026-08-15T05:32:01.134Z",
+	"capturedAt": "2026-08-16T05:34:53.903Z",
 	"activities": [
+		{
+			"type": "Run",
+			"name": "Afternoon Trail Run",
+			"distance": 9688.1,
+			"moving_time": 3348,
+			"start_date": "2026-08-15T21:33:12Z"
+		},
 		{
 			"type": "Run",
 			"name": "Evening Run",
@@ -28,21 +35,14 @@
 			"distance": 8109.3,
 			"moving_time": 2278,
 			"start_date": "2026-08-02T17:00:55Z"
-		},
-		{
-			"type": "Run",
-			"name": "Evening Run",
-			"distance": 8122,
-			"moving_time": 2318,
-			"start_date": "2026-07-30T00:02:16Z"
 		}
 	],
 	"stats": {
 		"Run": {
-			"count": 7,
-			"distance": 58193.3,
-			"moving_time": 17383,
-			"elevation_gain": 740
+			"count": 8,
+			"distance": 67881.4,
+			"moving_time": 20731,
+			"elevation_gain": 957
 		}
 	}
 }
