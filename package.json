@@ -13,13 +13,16 @@
 		"format:check": "biome format .",
 		"check": "biome ci .",
 		"lighthouse": "node scripts/lighthouse-audit.mjs",
-		"strava-refresh": "node scripts/strava-refresh.mjs"
+		"strava-refresh": "node scripts/strava-refresh.mjs",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"devDependencies": {
 		"@11ty/eleventy": "^3.1.6",
 		"@11ty/eleventy-plugin-rss": "^3.0.0",
 		"@biomejs/biome": "2.5.8",
 		"chrome-launcher": "1.2.1",
-		"lighthouse": "13.4.1"
+		"lighthouse": "13.4.1",
+		"vitest": "^4.1.11"
 	}
 }
