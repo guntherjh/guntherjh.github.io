@@ -1,6 +1,20 @@
 {
-	"capturedAt": "2026-08-18T05:35:57.086Z",
+	"capturedAt": "2026-08-19T05:37:09.450Z",
 	"activities": [
+		{
+			"type": "Run",
+			"name": "Evening Run",
+			"distance": 8057.2,
+			"moving_time": 2246,
+			"start_date": "2026-08-19T00:14:15Z"
+		},
+		{
+			"type": "Walk",
+			"name": "Morning Walk",
+			"distance": 1976.9,
+			"moving_time": 1199,
+			"start_date": "2026-08-18T12:47:40Z"
+		},
 		{
 			"type": "Ride",
 			"name": "Evening Ride",
@@ -21,20 +35,6 @@
 			"distance": 8096.8,
 			"moving_time": 2256,
 			"start_date": "2026-08-14T00:05:59Z"
-		},
-		{
-			"type": "Run",
-			"name": "Afternoon Trail Run",
-			"distance": 9619.5,
-			"moving_time": 3341,
-			"start_date": "2026-08-08T18:09:35Z"
-		},
-		{
-			"type": "Run",
-			"name": "Afternoon Run",
-			"distance": 8056.9,
-			"moving_time": 2559,
-			"start_date": "2026-08-05T19:29:36Z"
 		}
 	],
 	"stats": {
@@ -45,10 +45,10 @@
 			"elevation_gain": 0
 		},
 		"Run": {
-			"count": 7,
-			"distance": 59750.700000000004,
-			"moving_time": 18398,
-			"elevation_gain": 873
+			"count": 8,
+			"distance": 67807.9,
+			"moving_time": 20644,
+			"elevation_gain": 956
 		}
 	}
 }
