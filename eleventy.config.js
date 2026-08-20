@@ -49,17 +49,26 @@ export default function (eleventyConfig) {
 	// string (e.g. JSON data like src/_data/lighthouse.json's capturedAt)
 	// as well as an already-parsed Date (e.g. buildTime, post front
 	// matter dates), same coercion isoDate below already relies on.
+	// timeZone: "UTC" on both filters below — front matter/JSON dates with
+	// no time component (e.g. a post's `date: 2026-08-20`) parse as UTC
+	// midnight, matching isoDate's toISOString() output just below. Without
+	// pinning the zone, Intl.DateTimeFormat defaults to the *host's* local
+	// zone, which can format that same instant as the *previous* day west
+	// of UTC — e.g. "August 19" for a `2026-08-20` post date. Never
+	// surfaced before because the site shipped zero real posts until now.
 	eleventyConfig.addFilter("readableDate", (dateObj) =>
 		new Intl.DateTimeFormat("en-US", {
 			year: "numeric",
 			month: "long",
 			day: "numeric",
+			timeZone: "UTC",
 		}).format(new Date(dateObj)),
 	);
 
 	eleventyConfig.addFilter("copyrightDate", (dateObj) =>
 		new Intl.DateTimeFormat("en-US", {
 			year: "numeric",
+			timeZone: "UTC",
 		}).format(new Date(dateObj)),
 	);
 
