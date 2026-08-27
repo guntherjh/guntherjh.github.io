@@ -1,5 +1,5 @@
 {
-	"capturedAt": "2026-08-26T05:40:20.608Z",
+	"capturedAt": "2026-08-27T16:20:09.589Z",
 	"activities": [
 		{
 			"type": "Run",
@@ -45,10 +45,10 @@
 			"elevation_gain": 0
 		},
 		"Run": {
-			"count": 7,
-			"distance": 59749.799999999996,
-			"moving_time": 18346,
-			"elevation_gain": 869
+			"count": 6,
+			"distance": 51627.799999999996,
+			"moving_time": 16028,
+			"elevation_gain": 784
 		}
 	}
 }
