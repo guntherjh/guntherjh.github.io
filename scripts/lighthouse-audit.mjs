@@ -36,7 +36,7 @@ const OUTPUT_PATH = fileURLToPath(
 	new URL("../src/_data/lighthouse.json", import.meta.url),
 );
 
-async function auditPage(port, url) {
+export async function fetchLighthouseData(port, url) {
 	const result = await lighthouse(url, {
 		port,
 		logLevel: "error",
@@ -48,6 +48,10 @@ async function auditPage(port, url) {
 	}
 	const { lhr } = result;
 
+	return lhr;
+}
+
+export function formatLighthouseData(lhr) {
 	const scores = {};
 	for (const [id, category] of Object.entries(lhr.categories)) {
 		scores[id] = Math.round(category.score * 100);
@@ -61,7 +65,7 @@ async function auditPage(port, url) {
 	};
 }
 
-async function main() {
+export async function initializeAudit() {
 	const chrome = await launch({
 		chromeFlags: ["--headless=new", "--no-sandbox", "--disable-gpu"],
 	});
@@ -71,7 +75,8 @@ async function main() {
 		for (const page of PAGES) {
 			const url = new URL(page.path, BASE_URL).toString();
 			console.log(`Auditing ${page.label} (${url})...`);
-			pages[page.label] = await auditPage(chrome.port, url);
+			const lhr = await fetchLighthouseData(chrome.port, url);
+			pages[page.label] = formatLighthouseData(lhr);
 		}
 
 		const snapshot = { capturedAt: new Date().toISOString(), pages };
@@ -83,7 +88,13 @@ async function main() {
 	}
 }
 
-main().catch((err) => {
-	console.error(err);
-	process.exitCode = 1;
-});
+// Guarded so importing this module (e.g. lighthouse-audit.test.mjs importing
+// fetchLighthouseData/formatLighthouseData/initializeAudit) doesn't also
+// trigger a real audit run as a side effect — this only fires when the file
+// is executed directly, e.g. `node scripts/lighthouse-audit.mjs`.
+if (import.meta.url === `file://${process.argv[1]}`) {
+	initializeAudit().catch((err) => {
+		console.error(err);
+		process.exitCode = 1;
+	});
+}

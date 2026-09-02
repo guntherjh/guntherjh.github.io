@@ -32,7 +32,7 @@ const OUTPUT_PATH = fileURLToPath(
 	new URL("../src/_data/strava.json", import.meta.url),
 );
 
-async function fetchJson(url, accessToken) {
+export async function fetchJson(url, accessToken) {
 	const response = await fetch(url, {
 		headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
 	});
@@ -48,7 +48,7 @@ async function fetchJson(url, accessToken) {
 // Job entry / guntherjh/guntherjh.github.io#25's findings) — the value
 // returned here supersedes REFRESH_TOKEN for every subsequent run, so it
 // must be persisted before this run ends (see updateRefreshTokenSecret).
-async function refreshAccessToken() {
+export async function refreshAccessToken() {
 	const response = await fetch("https://www.strava.com/oauth/token", {
 		method: "POST",
 		headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -74,7 +74,7 @@ async function refreshAccessToken() {
 // GITHUB_TOKEN, which can't manage secrets at all) so GitHub's own CLI
 // handles the encryption — this script never implements that itself, and
 // the token value is passed via stdin, never a CLI argument or log line.
-function updateRefreshTokenSecret(newRefreshToken) {
+export function updateRefreshTokenSecret(newRefreshToken) {
 	// Registers the new value for GitHub Actions' own log redaction before
 	// it could appear anywhere — it hasn't been loaded from `secrets.*` yet
 	// at this point, so it isn't auto-masked without this. `::add-mask::` is
@@ -96,7 +96,7 @@ function updateRefreshTokenSecret(newRefreshToken) {
 	);
 }
 
-function buildActivities(rawActivities) {
+export function buildActivities(rawActivities) {
 	// Public Activities only — never ones marked private on Strava (see
 	// CONTEXT.md's Activity entry / guntherjh/guntherjh.github.io#28). This
 	// repo is public, so a private activity in the committed Snapshot would
@@ -113,7 +113,7 @@ function buildActivities(rawActivities) {
 		}));
 }
 
-function buildStats(rawStats) {
+export function buildStats(rawStats) {
 	const stats = {};
 	for (const [sportKey, label] of Object.entries(SPORT_LABELS)) {
 		const totals = rawStats[`recent_${sportKey}_totals`];
@@ -129,7 +129,7 @@ function buildStats(rawStats) {
 	return stats;
 }
 
-async function main() {
+export async function refreshStravaData() {
 	const tokens = await refreshAccessToken();
 	if (tokens.refresh_token && tokens.refresh_token !== REFRESH_TOKEN) {
 		updateRefreshTokenSecret(tokens.refresh_token);
@@ -139,14 +139,17 @@ async function main() {
 		"https://www.strava.com/api/v3/athlete",
 		tokens.access_token,
 	);
-	const rawActivities = await fetchJson(
-		`https://www.strava.com/api/v3/athlete/activities?per_page=${ACTIVITY_FETCH_COUNT}`,
-		tokens.access_token,
-	);
-	const rawStats = await fetchJson(
-		`https://www.strava.com/api/v3/athletes/${athlete.id}/stats`,
-		tokens.access_token,
-	);
+
+	const [rawActivities, rawStats] = await Promise.all([
+		fetchJson(
+			`https://www.strava.com/api/v3/athlete/activities?per_page=${ACTIVITY_FETCH_COUNT}`,
+			tokens.access_token,
+		),
+		fetchJson(
+			`https://www.strava.com/api/v3/athletes/${athlete.id}/stats`,
+			tokens.access_token,
+		),
+	]);
 
 	const snapshot = {
 		capturedAt: new Date().toISOString(),
@@ -158,7 +161,13 @@ async function main() {
 	console.log(`Wrote ${OUTPUT_PATH}`);
 }
 
-main().catch((err) => {
-	console.error(err);
-	process.exitCode = 1;
-});
+// Guarded so importing this module (e.g. strava-refresh.test.mjs importing
+// fetchJson/refreshAccessToken/etc.) doesn't also trigger a real refresh
+// against the live Strava API as a side effect — this only fires when the
+// file is executed directly, e.g. `node scripts/strava-refresh.mjs`.
+if (import.meta.url === `file://${process.argv[1]}`) {
+	refreshStravaData().catch((err) => {
+		console.error(err);
+		process.exitCode = 1;
+	});
+}
