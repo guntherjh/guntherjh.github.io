@@ -61,6 +61,40 @@ export function trend(currentLevel, previousLevel) {
 	return { direction: outcome === "improved" ? "up" : "down", outcome };
 }
 
+// Human-readable tier name for a scoreLevel/metricLevel value — "average"
+// is Lighthouse's own "needs improvement" band, spelled out here so the
+// trend toggletip reads in plain language.
+const LEVEL_LABEL = {
+	good: "good",
+	average: "needs improvement",
+	poor: "poor",
+};
+
+// Builds the sentence shown in a trend arrow's toggletip (see ADR 0007):
+// self-contained and framed by tier, so it never contradicts the arrow —
+// the arrow tracks tier changes, not raw deltas, so "88 (good)" after
+// "100 (good)" is deliberately reported as no tier change. Takes already-
+// formatted display strings (e.g. "1.9s", "509ms", "95") and an already-
+// formatted previous-audit date, so this stays free of unit/date logic.
+// Returns "" for a flat or absent trend — those arrows aren't toggletips.
+export function trendDetail({
+	label,
+	currentDisplay,
+	currentLevel,
+	previousDisplay,
+	previousLevel,
+	previousDate,
+}) {
+	const change = trend(currentLevel, previousLevel);
+	if (!change || change.outcome === "flat") return "";
+
+	return (
+		`${label} ${currentDisplay} (${LEVEL_LABEL[currentLevel]}). ` +
+		`Previous audit ${previousDate}: ${previousDisplay} ` +
+		`(${LEVEL_LABEL[previousLevel]}). Tier ${change.outcome}.`
+	);
+}
+
 export default function (eleventyConfig) {
 	eleventyConfig.addPlugin(pluginRss);
 
@@ -136,6 +170,7 @@ export default function (eleventyConfig) {
 	eleventyConfig.addFilter("scoreLevel", scoreLevel);
 	eleventyConfig.addFilter("metricLevel", metricLevel);
 	eleventyConfig.addFilter("trend", trend);
+	eleventyConfig.addFilter("trendDetail", trendDetail);
 
 	return {
 		dir: {

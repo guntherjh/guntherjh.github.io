@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { metricLevel, scoreLevel, trend } from "./eleventy.config.js";
+import {
+	metricLevel,
+	scoreLevel,
+	trend,
+	trendDetail,
+} from "./eleventy.config.js";
 
 describe("scoreLevel", () => {
 	it("returns good for scores 90 and above", () => {
@@ -82,5 +87,65 @@ describe("trend", () => {
 			direction: "down",
 			outcome: "regressed",
 		});
+	});
+});
+
+describe("trendDetail", () => {
+	it("describes an improvement, framed by tier, self-contained", () => {
+		expect(
+			trendDetail({
+				label: "Accessibility",
+				currentDisplay: "95",
+				currentLevel: "good",
+				previousDisplay: "78",
+				previousLevel: "average",
+				previousDate: "September 4, 2026",
+			}),
+		).toBe(
+			"Accessibility 95 (good). Previous audit September 4, 2026: 78 " +
+				"(needs improvement). Tier improved.",
+		);
+	});
+
+	it("describes a regression and keeps each metric's own display units", () => {
+		expect(
+			trendDetail({
+				label: "LCP",
+				currentDisplay: "4.3s",
+				currentLevel: "poor",
+				previousDisplay: "1.9s",
+				previousLevel: "good",
+				previousDate: "September 4, 2026",
+			}),
+		).toBe(
+			"LCP 4.3s (poor). Previous audit September 4, 2026: 1.9s (good). " +
+				"Tier regressed.",
+		);
+	});
+
+	it("returns an empty string when the tier did not change", () => {
+		expect(
+			trendDetail({
+				label: "Performance",
+				currentDisplay: "88",
+				currentLevel: "good",
+				previousDisplay: "100",
+				previousLevel: "good",
+				previousDate: "September 4, 2026",
+			}),
+		).toBe("");
+	});
+
+	it("returns an empty string when there is no previous audit", () => {
+		expect(
+			trendDetail({
+				label: "SEO",
+				currentDisplay: "100",
+				currentLevel: "good",
+				previousDisplay: undefined,
+				previousLevel: null,
+				previousDate: undefined,
+			}),
+		).toBe("");
 	});
 });
