@@ -58,58 +58,131 @@ layout: layouts/base.njk
      ADR 0006 for why the Snapshot retains history at all. #}
   {% set latest = lighthouse.history[0] %}
   {% set previous = lighthouse.history[1] %}
+  {% set previousDate = (previous.capturedAt | readableDate) if previous else none %}
+  {% set metricNames = {
+    "performance": "Performance", "accessibility": "Accessibility",
+    "best-practices": "Best Practices", "seo": "SEO",
+    "lcp": "LCP", "cls": "CLS", "tbt": "TBT"
+  } %}
+  {# Renders one metric value the way its column wants it — LCP in seconds,
+     TBT in whole ms, everything else (0-100 scores, unitless CLS) bare.
+     One macro so the cell text and the trend toggletip's copy can't drift. #}
+  {% macro fmtMetric(key, value) -%}
+    {%- if key == "lcp" -%}{{ (value / 1000) | round(1) }}s
+    {%- elif key == "tbt" -%}{{ value | round }}ms
+    {%- else -%}{{ value }}
+    {%- endif -%}
+  {%- endmacro -%}
+  {# Trend marker for one cell. An actual tier change (improved/regressed)
+     is a native-Popover toggletip button (see ADR 0007); a flat arrow is
+     plain text; no previous run means no marker at all. #}
+  {% macro trendMarker(change, detailId, ariaLabel, detail) -%}
+    {%- if change and change.outcome != "flat" -%}
+      <button type="button" class="lh-trend lh-trend-{{ change.outcome }}" popovertarget="{{ detailId }}" aria-label="{{ ariaLabel }}" aria-describedby="{{ detailId }}">{{ "↑" if change.direction == "up" else "↓" }}</button><span popover id="{{ detailId }}" class="lh-trend-detail">{{ detail }}</span>
+    {%- elif change -%}
+      <span class="lh-trend lh-trend-flat" aria-label="No tier change since previous audit">–</span>
+    {%- endif -%}
+  {%- endmacro -%}
   <div class="lighthouse-widget">
-    <table>
-      <caption>
-        Lighthouse scores, last measured {{ latest.capturedAt | readableDate }}
-        {%- if previous %}
-        — trend vs. previous audit ({{ previous.capturedAt | readableDate }})
-        {%- endif %}
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">Page</th>
-          <th scope="col" abbr="Performance">Perf</th>
-          <th scope="col" abbr="Accessibility">A11y</th>
-          <th scope="col" abbr="Best Practices">BP</th>
-          <th scope="col">SEO</th>
-          <th scope="col" abbr="Largest Contentful Paint">LCP</th>
-          <th scope="col" abbr="Cumulative Layout Shift">CLS</th>
-          <th scope="col" abbr="Total Blocking Time">TBT</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for label, page in latest.pages %}
-        {% set prevPage = previous.pages[label] if previous else none %}
-        <tr>
-          <th scope="row">{{ label }}</th>
-          {% for key in ["performance", "accessibility", "best-practices", "seo"] %}
-          {% set value = page.scores[key] %}
-          {% set level = value | scoreLevel %}
-          {% set prevLevel = (prevPage.scores[key] | scoreLevel) if prevPage else none %}
-          {% set change = level | trend(prevLevel) %}
-          <td class="lh-cell lh-{{ level }}">
-            {{ value }}
-            {% if change %}<span class="lh-trend lh-trend-{{ change.outcome }}" aria-label="{{ change.outcome | capitalize }} since previous audit">{{ "▲" if change.direction == "up" else ("▼" if change.direction == "down" else "–") }}</span>{% endif %}
-          </td>
+    {# Only the table scrolls sideways on a narrow screen (see #41); the
+       legend and glossary below stay outside the scroll wrapper so a
+       horizontal scrollbar can't drag a vertical one in with it (#124). #}
+    <div class="lighthouse-table-scroll">
+      <table>
+        <caption>
+          Lighthouse scores, last measured {{ latest.capturedAt | readableDate }}
+          {%- if previous %}
+          — trend vs. previous audit ({{ previousDate }})
+          {%- endif %}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Page</th>
+            <th scope="col" abbr="Performance" aria-describedby="lh-def-performance">Perf</th>
+            <th scope="col" abbr="Accessibility" aria-describedby="lh-def-accessibility">A11y</th>
+            <th scope="col" abbr="Best Practices" aria-describedby="lh-def-best-practices">BP</th>
+            <th scope="col" aria-describedby="lh-def-seo">SEO</th>
+            <th scope="col" abbr="Largest Contentful Paint" aria-describedby="lh-def-lcp">LCP</th>
+            <th scope="col" abbr="Cumulative Layout Shift" aria-describedby="lh-def-cls">CLS</th>
+            <th scope="col" abbr="Total Blocking Time" aria-describedby="lh-def-tbt">TBT</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for label, page in latest.pages %}
+          {% set prevPage = previous.pages[label] if previous else none %}
+          <tr>
+            <th scope="row">{{ label }}</th>
+            {% for key in ["performance", "accessibility", "best-practices", "seo"] %}
+            {% set value = page.scores[key] %}
+            {% set prevValue = prevPage.scores[key] if prevPage else none %}
+            {% set level = value | scoreLevel %}
+            {% set prevLevel = (prevValue | scoreLevel) if prevPage else none %}
+            {% set change = level | trend(prevLevel) %}
+            {% set detailId = "lh-trend-" ~ (label | lower | replace(" ", "-")) ~ "-" ~ key %}
+            {% set ariaLabel = (metricNames[key] ~ " " ~ change.outcome ~ " since previous audit") if change else "" %}
+            {% set detail = {
+              label: metricNames[key], currentDisplay: value, currentLevel: level,
+              previousDisplay: prevValue, previousLevel: prevLevel, previousDate: previousDate
+            } | trendDetail %}
+            <td class="lh-cell lh-{{ level }}" data-label="{{ metricNames[key] }}">{{ value }} {{ trendMarker(change, detailId, ariaLabel, detail) }}</td>
+            {% endfor %}
+            {% for key in ["lcp", "cls", "tbt"] %}
+            {% set value = page[key] %}
+            {% set prevValue = prevPage[key] if prevPage else none %}
+            {% set level = value | metricLevel(key) %}
+            {% set prevLevel = (prevValue | metricLevel(key)) if prevPage else none %}
+            {% set change = level | trend(prevLevel) %}
+            {% set detailId = "lh-trend-" ~ (label | lower | replace(" ", "-")) ~ "-" ~ key %}
+            {% set ariaLabel = (metricNames[key] ~ " " ~ change.outcome ~ " since previous audit") if change else "" %}
+            {% set detail = {
+              label: metricNames[key], currentDisplay: fmtMetric(key, value) | trim, currentLevel: level,
+              previousDisplay: (fmtMetric(key, prevValue) | trim) if prevValue is not none else none,
+              previousLevel: prevLevel, previousDate: previousDate
+            } | trendDetail %}
+            <td class="lh-cell lh-{{ level }}" data-label="{{ metricNames[key] }}">{{ fmtMetric(key, value) }} {{ trendMarker(change, detailId, ariaLabel, detail) }}</td>
+            {% endfor %}
+          </tr>
           {% endfor %}
-          {% for key in ["lcp", "cls", "tbt"] %}
-          {% set value = page[key] %}
-          {% set level = value | metricLevel(key) %}
-          {% set prevLevel = (prevPage[key] | metricLevel(key)) if prevPage else none %}
-          {% set change = level | trend(prevLevel) %}
-          <td class="lh-cell lh-{{ level }}">
-            {% if key == "lcp" %}{{ (value / 1000) | round(1) }}s
-            {%- elif key == "tbt" %}{{ value | round }}ms
-            {%- else %}{{ value }}{% endif %}
-            {% if change %}<span class="lh-trend lh-trend-{{ change.outcome }}" aria-label="{{ change.outcome | capitalize }} since previous audit">{{ "▲" if change.direction == "up" else ("▼" if change.direction == "down" else "–") }}</span>{% endif %}
-          </td>
-          {% endfor %}
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <p class="lighthouse-legend">Green = good, orange = needs improvement, red = poor, per Lighthouse's own thresholds.</p>
+        </tbody>
+      </table>
+    </div>
+    <p class="lighthouse-legend">
+      Green = good, orange = needs improvement, red = poor, per Lighthouse's own thresholds.
+      <span class="lighthouse-legend-trend">↑ ↓ – show whether a score's tier improved, regressed, or held since the previous audit — activate ↑ or ↓ for the earlier value.</span>
+    </p>
+    <details class="lighthouse-glossary">
+      <summary>What do these metrics mean?</summary>
+      <dl>
+        <div>
+          <dt>Perf — Performance</dt>
+          <dd id="lh-def-performance">Lighthouse's weighted score (0–100) combining lab metrics — weighted most heavily toward LCP, TBT and CLS. ≥ 90 good, 50–89 needs improvement, &lt; 50 poor.</dd>
+        </div>
+        <div>
+          <dt>A11y — Accessibility</dt>
+          <dd id="lh-def-accessibility">Weighted pass/fail automated accessibility checks (Lighthouse runs axe-core). Same 0–100 banding. A perfect score still needs manual testing to confirm — automated checks can't catch everything.</dd>
+        </div>
+        <div>
+          <dt>BP — Best Practices</dt>
+          <dd id="lh-def-best-practices">Equally-weighted general web-quality and security checks — HTTPS, no console errors, no deprecated APIs, correct image aspect ratios, a Content Security Policy. Same 0–100 banding.</dd>
+        </div>
+        <div>
+          <dt>SEO</dt>
+          <dd id="lh-def-seo">Basic technical-SEO checks — page is crawlable, has a title and meta description, returns a successful status, uses descriptive link text and a valid canonical. Fundamentals only, not a full SEO audit. Same 0–100 banding.</dd>
+        </div>
+        <div>
+          <dt>LCP — Largest Contentful Paint</dt>
+          <dd id="lh-def-lcp">Time until the largest image or text block in the viewport renders. Good ≤ 2.5 s, poor &gt; 4 s.</dd>
+        </div>
+        <div>
+          <dt>CLS — Cumulative Layout Shift</dt>
+          <dd id="lh-def-cls">How much visible content shifts position unexpectedly while the page loads (unitless). Good ≤ 0.1, poor &gt; 0.25.</dd>
+        </div>
+        <div>
+          <dt>TBT — Total Blocking Time</dt>
+          <dd id="lh-def-tbt">Total time the main thread was blocked by long tasks during load, delaying response to input. Good ≤ 200 ms, poor &gt; 600 ms.</dd>
+        </div>
+      </dl>
+    </details>
   </div>
 </details>
 

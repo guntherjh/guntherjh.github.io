@@ -493,11 +493,14 @@ time {
    not cards/badges — 4 pages × 7 metrics is genuinely tabular data, and
    <table> is the correct semantic element for it (scoped headers, an
    `abbr` attribute on abbreviated column headers for assistive tech).
-   overflow-x: auto rather than a squeezed/reflowed layout on narrow
-   screens — 8 columns won't fit a phone width no matter what, so letting
-   the table scroll horizontally (checked at a narrow mobile width, see
-   CODING_STANDARDS.md's Responsive design section) keeps every cell
-   readable instead of cramming or truncating.
+   8 columns won't fit a phone width no matter what. Below 640px the table
+   reflows into stacked per-page cards (see the media query lower down);
+   between there and the table's natural width, the .lighthouse-table-scroll
+   wrapper lets just the table scroll sideways rather than a squeezed
+   layout (checked at a narrow width, see CODING_STANDARDS.md's Responsive
+   design section), with overflow-y pinned to hidden so a horizontal
+   scrollbar can't induce a vertical one (guntherjh/guntherjh.github.io#124).
+   The legend and glossary sit outside that wrapper so they never scroll.
 
    guntherjh/guntherjh.github.io#71 added color-coding and a trend
    indicator per cell on top of this same table — reaffirmed rather than
@@ -507,7 +510,11 @@ time {
    aria-label, not color alone. */
 .lighthouse-widget {
 	margin-top: 1rem;
+}
+
+.lighthouse-table-scroll {
 	overflow-x: auto;
+	overflow-y: hidden;
 }
 
 .lighthouse-widget table {
@@ -559,6 +566,20 @@ time {
 	font-family: var(--font-body);
 }
 
+/* The trend marker is a <button> only when it opens a toggletip (an actual
+   tier change — guntherjh/guntherjh.github.io#124, ADR 0007). It should
+   still read as the bare coloured glyph it was before; interactivity is
+   signalled by the cursor and the focus ring alone. */
+button.lh-trend {
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	line-height: inherit;
+	color: inherit;
+	cursor: help;
+}
+
 .lh-trend-improved {
 	color: var(--color-lh-good);
 }
@@ -571,10 +592,135 @@ time {
 	color: var(--color-muted);
 }
 
+/* The toggletip is a bottom-centered panel, not a bubble tethered to the
+   arrow: it renders in the top layer (never clipped by the table's
+   overflow), stays put regardless of which row's arrow opened it, and
+   needs no CSS anchor-positioning support to land somewhere sensible. The
+   panel names its own metric ("Performance 100 (good)…") so it's never
+   ambiguous which arrow it belongs to, and the arrow keeps its focus ring. */
+.lh-trend-detail {
+	display: none;
+	position: fixed;
+	inset: auto;
+	bottom: 1rem;
+	left: 50%;
+	transform: translateX(-50%);
+	width: max-content;
+	max-width: min(24rem, calc(100vw - 2rem));
+	margin: 0;
+	padding: 0.5rem 0.7rem;
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	background: var(--color-panel);
+	color: var(--color-text);
+	font-family: var(--font-body);
+	font-size: 0.8rem;
+	line-height: 1.4;
+	white-space: normal;
+	box-shadow: 0 2px 12px rgb(0 0 0 / 0.2);
+}
+
+/* Shown only while open, and only where :popover-open is understood — in a
+   browser without Popover API support the trigger is inert and this stays
+   hidden (the sentence is still on the button via aria-describedby). */
+.lh-trend-detail:popover-open {
+	display: block;
+}
+
 .lighthouse-legend {
 	margin-top: 0.5rem;
 	color: var(--color-muted);
 	font-size: 0.8rem;
+}
+
+.lighthouse-legend-trend {
+	display: block;
+	margin-top: 0.25rem;
+}
+
+.lighthouse-glossary {
+	margin-top: 0.75rem;
+	color: var(--color-muted);
+	font-size: 0.8rem;
+}
+
+.lighthouse-glossary summary {
+	cursor: pointer;
+}
+
+.lighthouse-glossary dl {
+	margin: 0.5rem 0 0;
+}
+
+.lighthouse-glossary div + div {
+	margin-top: 0.4rem;
+}
+
+.lighthouse-glossary dt {
+	font-weight: 600;
+}
+
+.lighthouse-glossary dd {
+	margin: 0;
+}
+
+/* Below the mobile-nav breakpoint the 8-column grid can't fit without
+   horizontal scrolling, which is hard on screen-magnifier and keyboard
+   users (guntherjh/guntherjh.github.io#124). The same table markup reflows
+   into one labelled card per page: each row is a card headed by the page
+   name, each cell a "Metric: value" line via its data-label. This trades
+   the table's row/column semantics on small screens (some screen readers
+   stop treating a display:block table as tabular) for content that fits a
+   phone width with no 2D scrolling — see ADR 0007. */
+@media (max-width: 640px) {
+	.lighthouse-table-scroll {
+		overflow: visible;
+	}
+
+	.lighthouse-widget table,
+	.lighthouse-widget caption,
+	.lighthouse-widget tbody,
+	.lighthouse-widget tr,
+	.lighthouse-widget th[scope="row"],
+	.lighthouse-widget td {
+		display: block;
+	}
+
+	.lighthouse-widget thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
+	.lighthouse-widget tr {
+		margin-bottom: 0.75rem;
+		border: 1px solid var(--color-border);
+		border-radius: 4px;
+		padding: 0.15rem 0.6rem 0.35rem;
+	}
+
+	.lighthouse-widget th[scope="row"] {
+		margin-bottom: 0.15rem;
+		padding: 0.3rem 0;
+		border-bottom: 1px solid var(--color-border);
+		font-size: 0.95rem;
+	}
+
+	.lighthouse-widget td {
+		padding: 0.3rem 0;
+		border-bottom: 0;
+		white-space: normal;
+	}
+
+	.lighthouse-widget td::before {
+		content: attr(data-label) ": ";
+		font-family: var(--font-body);
+		font-weight: 600;
+		color: var(--color-muted);
+	}
 }
 
 /* Print support for the Resume page (guntherjh/guntherjh.github.io#35)
