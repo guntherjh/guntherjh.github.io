@@ -315,8 +315,19 @@ html[data-theme="dark"] .theme-toggle-thumb::before {
 		display: flex;
 	}
 
+	/* .site-nav's desktop rules (align-items: center, justify-content: end,
+	   flex-wrap: wrap, flex: 1) are all for a horizontal right-aligned bar;
+	   in the vertical panel they left every link centred on the nav's own
+	   shrink-to-widest-link width, so each one sat at a different x
+	   (guntherjh/guntherjh.github.io#125). Reset to a plain top-aligned
+	   stack that fills the panel width, so every link shares a left edge. */
 	.nav-toggle-panel .site-nav {
+		flex: 0 1 auto;
 		flex-direction: column;
+		flex-wrap: nowrap;
+		align-self: stretch;
+		align-items: stretch;
+		justify-content: flex-start;
 	}
 
 	.nav-toggle-panel .site-nav a {
