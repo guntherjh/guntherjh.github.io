@@ -569,7 +569,7 @@ time {
 /* The trend marker is a <button> only when it opens a toggletip (an actual
    tier change — guntherjh/guntherjh.github.io#124, ADR 0007). It should
    still read as the bare coloured glyph it was before; interactivity is
-   signalled by the cursor and the focus ring alone. */
+   signalled by the pointer cursor and a focus ring alone. */
 button.lh-trend {
 	padding: 0;
 	border: 0;
@@ -577,7 +577,13 @@ button.lh-trend {
 	font: inherit;
 	line-height: inherit;
 	color: inherit;
-	cursor: help;
+	cursor: pointer;
+}
+
+button.lh-trend:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+	border-radius: 2px;
 }
 
 .lh-trend-improved {

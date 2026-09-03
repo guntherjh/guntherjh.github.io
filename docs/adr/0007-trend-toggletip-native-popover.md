@@ -11,7 +11,7 @@ The Lighthouse Widget's per-cell trend arrows (guntherjh/guntherjh.github.io#71)
 
 ## Consequences
 
-- The trigger is a real `<button>` styled to look like the plain glyph — interactivity is signalled only by `cursor: help` and a focus ring, so the compact look is preserved but the affordance is subtle.
+- The trigger is a real `<button>` styled to look like the plain glyph — interactivity is signalled only by a pointer cursor and a `:focus-visible` ring, so the compact look is preserved but the affordance is subtle.
 - The toggletip glyphs are `↑`/`↓` (thin arrows, not filled triangles), kept deliberately distinct from the `<details>` disclosure triangles used by the About page's collapsible sections and by the glossary itself.
 - The panel is bottom-centred (`position: fixed`), not tethered to the arrow — CSS anchor positioning isn't broadly supported yet, and the top-layer panel would otherwise land at the viewport origin. The panel leads with its own metric and value ("Performance 100 (good)…") so it's unambiguous which arrow it belongs to.
 - Browsers without Popover API support render the button inert (no visual popup); screen readers still get the full detail via `aria-describedby`, and the legend + `<dl>` still explain the symbols and metrics for everyone. Acceptable progressive enhancement.

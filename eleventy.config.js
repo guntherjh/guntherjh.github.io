@@ -85,17 +85,13 @@ export function trendDetail({
 	previousLevel,
 	previousDate,
 }) {
-	if (previousLevel === undefined || previousLevel === null) return "";
-	if (currentLevel === previousLevel) return "";
+	const change = trend(currentLevel, previousLevel);
+	if (!change || change.outcome === "flat") return "";
 
-	const outcome =
-		LEVEL_RANK[currentLevel] > LEVEL_RANK[previousLevel]
-			? "improved"
-			: "regressed";
 	return (
 		`${label} ${currentDisplay} (${LEVEL_LABEL[currentLevel]}). ` +
 		`Previous audit ${previousDate}: ${previousDisplay} ` +
-		`(${LEVEL_LABEL[previousLevel]}). Tier ${outcome}.`
+		`(${LEVEL_LABEL[previousLevel]}). Tier ${change.outcome}.`
 	);
 }
 
