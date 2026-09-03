@@ -1,8 +1,9 @@
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { launch } from "chrome-launcher";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { formatWithBiome } from "./lib/format-json.mjs";
 import {
+	buildSnapshotHistory,
 	fetchLighthouseData,
 	formatLighthouseData,
 	initializeAudit,
@@ -88,6 +89,47 @@ describe("Lighthouse audit", () => {
 		});
 	});
 
+	describe("buildSnapshotHistory", () => {
+		const newSnapshot = { capturedAt: "2026-09-03T00:00:00.000Z", pages: {} };
+
+		it("starts a new history array when there is no existing data", () => {
+			expect(buildSnapshotHistory(undefined, newSnapshot)).toEqual({
+				history: [newSnapshot],
+			});
+		});
+
+		it("treats a legacy (pre-history) Snapshot shape as having no history", () => {
+			const legacyData = { capturedAt: "2026-08-01T00:00:00.000Z", pages: {} };
+			expect(buildSnapshotHistory(legacyData, newSnapshot)).toEqual({
+				history: [newSnapshot],
+			});
+		});
+
+		it("prepends the new snapshot, newest first", () => {
+			const existingData = {
+				history: [{ capturedAt: "2026-09-02T00:00:00.000Z", pages: {} }],
+			};
+			expect(buildSnapshotHistory(existingData, newSnapshot)).toEqual({
+				history: [newSnapshot, existingData.history[0]],
+			});
+		});
+
+		it("caps the retained history at maxHistory, dropping the oldest entries", () => {
+			const existingData = {
+				history: Array.from({ length: 10 }, (_, i) => ({
+					capturedAt: `run-${i}`,
+					pages: {},
+				})),
+			};
+
+			const result = buildSnapshotHistory(existingData, newSnapshot, 10);
+
+			expect(result.history).toHaveLength(10);
+			expect(result.history[0]).toEqual(newSnapshot);
+			expect(result.history.at(-1)).toEqual(existingData.history[8]);
+		});
+	});
+
 	describe("initializeAudit", () => {
 		let mockChrome;
 		let mockLhrData;
@@ -110,6 +152,13 @@ describe("Lighthouse audit", () => {
 				},
 			};
 			lighthouse.mockResolvedValue({ lhr: mockLhrData });
+
+			// No pre-existing Snapshot on disk by default (first-ever run) —
+			// individual tests override this to exercise the history-retention
+			// path instead.
+			readFile.mockRejectedValue(
+				Object.assign(new Error("not found"), { code: "ENOENT" }),
+			);
 		});
 
 		it("audits every configured page and writes one snapshot with all of them", async () => {
@@ -121,19 +170,58 @@ describe("Lighthouse audit", () => {
 			const [outputPath, contents] = writeFile.mock.calls[0];
 			expect(outputPath).toMatch(/lighthouse\.json$/);
 
-			const snapshot = JSON.parse(contents);
-			expect(Object.keys(snapshot.pages)).toEqual([
+			const data = JSON.parse(contents);
+			expect(data.history).toHaveLength(1);
+			const [latest] = data.history;
+			expect(Object.keys(latest.pages)).toEqual([
 				"Home",
 				"About",
 				"Resume",
 				"Blog",
 			]);
-			expect(snapshot.pages.Home.scores).toEqual({
+			expect(latest.pages.Home.scores).toEqual({
 				performance: 90,
 				accessibility: 90,
 				"best-practices": 90,
 				seo: 90,
 			});
+		});
+
+		it("prepends the new run to a Snapshot's existing history", async () => {
+			readFile.mockResolvedValue(
+				JSON.stringify({
+					history: [{ capturedAt: "2026-09-01T00:00:00.000Z", pages: {} }],
+				}),
+			);
+
+			await initializeAudit();
+
+			const [, contents] = writeFile.mock.calls[0];
+			const data = JSON.parse(contents);
+			expect(data.history).toHaveLength(2);
+			expect(data.history[1]).toEqual({
+				capturedAt: "2026-09-01T00:00:00.000Z",
+				pages: {},
+			});
+		});
+
+		it("treats a missing Snapshot file as an empty history rather than failing", async () => {
+			await expect(initializeAudit()).resolves.toBeUndefined();
+
+			expect(writeFile).toHaveBeenCalledTimes(1);
+		});
+
+		it("does not swallow a readFile failure that isn't a missing file, and never runs an audit", async () => {
+			readFile.mockRejectedValue(new Error("permission denied"));
+
+			await expect(initializeAudit()).rejects.toThrow("permission denied");
+
+			// Checked before launching Chrome or spending any real Lighthouse
+			// audits, not just before the write — a read failure here should be
+			// cheap to fail on, not discard four already-completed live audits.
+			expect(launch).not.toHaveBeenCalled();
+			expect(lighthouse).not.toHaveBeenCalled();
+			expect(writeFile).not.toHaveBeenCalled();
 		});
 
 		it("formats the written snapshot with Biome", async () => {

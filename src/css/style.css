@@ -9,6 +9,12 @@
     dark:  text/bg 11.6:1, muted/panel 4.63:1, accent/bg 4.99:1
   All pass WCAG AA (4.5:1 normal text); several exceed AAA (7:1).
 
+  Lighthouse widget good/average/poor tokens (guntherjh/guntherjh.github.io#71)
+  computed and verified the same way, against --color-bg specifically
+  (the background the widget's table cells actually sit on):
+    light: good/bg 5.84:1, average/bg 6.19:1, poor/bg 4.79:1
+    dark:  good/bg 6.03:1, average/bg 7.05:1, poor/bg 5.44:1
+
   :root carries the light palette as a fallback — if the pre-paint
   script never runs (JS disabled/blocked/errors before it executes),
   html gets no [data-theme] attribute and these are the values used,
@@ -27,6 +33,9 @@
 	--color-muted: #57606a;
 	--color-accent: #0969da;
 	--color-border: #c7c7cf;
+	--color-lh-good: #146c2e;
+	--color-lh-average: #7a5200;
+	--color-lh-poor: #cf222e;
 	/* Theme-toggle thumb icons, masked shapes (see .theme-toggle-thumb::before) —
        theme-independent, so defined once here rather than per palette block. */
 	--icon-sun: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41'/%3E%3C/svg%3E");
@@ -40,6 +49,9 @@ html[data-theme="light"] {
 	--color-muted: #57606a;
 	--color-accent: #0969da;
 	--color-border: #c7c7cf;
+	--color-lh-good: #146c2e;
+	--color-lh-average: #7a5200;
+	--color-lh-poor: #cf222e;
 }
 
 html[data-theme="dark"] {
@@ -49,6 +61,9 @@ html[data-theme="dark"] {
 	--color-muted: #a8a8ad;
 	--color-accent: #4a9eff;
 	--color-border: #4a4a50;
+	--color-lh-good: #4ac26b;
+	--color-lh-average: #e3b341;
+	--color-lh-poor: #ff7b72;
 }
 
 * {
@@ -482,7 +497,14 @@ time {
    screens — 8 columns won't fit a phone width no matter what, so letting
    the table scroll horizontally (checked at a narrow mobile width, see
    CODING_STANDARDS.md's Responsive design section) keeps every cell
-   readable instead of cramming or truncating. */
+   readable instead of cramming or truncating.
+
+   guntherjh/guntherjh.github.io#71 added color-coding and a trend
+   indicator per cell on top of this same table — reaffirmed rather than
+   reversed the table-not-cards decision above (see ADR 0006). Color is
+   never the only signal: the raw number stays visible in every cell, and
+   the trend arrow's meaning is also carried by its shape and an
+   aria-label, not color alone. */
 .lighthouse-widget {
 	margin-top: 1rem;
 	overflow-x: auto;
@@ -518,6 +540,41 @@ time {
 .lighthouse-widget td {
 	font-family: var(--font-mono);
 	color: var(--color-muted);
+}
+
+.lh-cell.lh-good {
+	color: var(--color-lh-good);
+}
+
+.lh-cell.lh-average {
+	color: var(--color-lh-average);
+}
+
+.lh-cell.lh-poor {
+	color: var(--color-lh-poor);
+}
+
+.lh-trend {
+	margin-left: 0.25rem;
+	font-family: var(--font-body);
+}
+
+.lh-trend-improved {
+	color: var(--color-lh-good);
+}
+
+.lh-trend-regressed {
+	color: var(--color-lh-poor);
+}
+
+.lh-trend-flat {
+	color: var(--color-muted);
+}
+
+.lighthouse-legend {
+	margin-top: 0.5rem;
+	color: var(--color-muted);
+	font-size: 0.8rem;
 }
 
 /* Print support for the Resume page (guntherjh/guntherjh.github.io#35)
