@@ -19,7 +19,7 @@
 // not overwrite it with incomplete data. This only affects this job's own
 // pass/fail status in the Actions UI; the site itself already deployed
 // successfully before this job even started.
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { launch } from "chrome-launcher";
 import lighthouse from "lighthouse";
@@ -35,6 +35,10 @@ const PAGES = [
 const OUTPUT_PATH = fileURLToPath(
 	new URL("../src/_data/lighthouse.json", import.meta.url),
 );
+// Bounded so the committed Snapshot file doesn't grow forever — see ADR
+// 0006 for why 10, and CONTEXT.md's Lighthouse Snapshot entry for the
+// resulting shape (guntherjh/guntherjh.github.io#71).
+const MAX_HISTORY = 10;
 
 export async function fetchLighthouseData(port, url) {
 	const result = await lighthouse(url, {
@@ -65,7 +69,43 @@ export function formatLighthouseData(lhr) {
 	};
 }
 
+// Prepends newSnapshot to whatever history existingData already has (newest
+// first), capped at maxHistory. existingData is undefined on the very
+// first-ever run (see readExistingSnapshot's ENOENT handling below); a
+// pre-history-shaped Snapshot (no `history` key — the shape this file used
+// before guntherjh/guntherjh.github.io#71) is likewise treated as having no
+// history yet, rather than special-cased — this repo's actual committed
+// Snapshot was migrated to the new shape directly as part of that change,
+// so this fallback only matters for a stale file slipping through.
+export function buildSnapshotHistory(
+	existingData,
+	newSnapshot,
+	maxHistory = MAX_HISTORY,
+) {
+	const previousHistory = existingData?.history ?? [];
+	return { history: [newSnapshot, ...previousHistory].slice(0, maxHistory) };
+}
+
+// Returns undefined if the Snapshot file doesn't exist yet (the very first
+// run ever, or a corrupted checkout) rather than treating that as a
+// failure — everything else (bad JSON, permissions) still propagates,
+// consistent with this file's fail-rather-than-write-partial-data stance.
+async function readExistingSnapshot() {
+	try {
+		return JSON.parse(await readFile(OUTPUT_PATH, "utf8"));
+	} catch (err) {
+		if (err.code === "ENOENT") return undefined;
+		throw err;
+	}
+}
+
 export async function initializeAudit() {
+	// Read before launching Chrome or running any audit — a bad Snapshot
+	// file (unreadable for a reason other than not existing yet) should
+	// fail cheaply here, not after four real, live Lighthouse audits have
+	// already run against production only to be discarded.
+	const existingData = await readExistingSnapshot();
+
 	const chrome = await launch({
 		chromeFlags: ["--headless=new", "--no-sandbox", "--disable-gpu"],
 	});
@@ -79,8 +119,9 @@ export async function initializeAudit() {
 			pages[page.label] = formatLighthouseData(lhr);
 		}
 
-		const snapshot = { capturedAt: new Date().toISOString(), pages };
-		await writeFile(OUTPUT_PATH, `${JSON.stringify(snapshot, null, 2)}\n`);
+		const newSnapshot = { capturedAt: new Date().toISOString(), pages };
+		const data = buildSnapshotHistory(existingData, newSnapshot);
+		await writeFile(OUTPUT_PATH, `${JSON.stringify(data, null, 2)}\n`);
 		formatWithBiome(OUTPUT_PATH);
 		console.log(`Wrote ${OUTPUT_PATH}`);
 	} finally {

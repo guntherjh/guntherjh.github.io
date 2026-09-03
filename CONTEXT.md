@@ -25,11 +25,11 @@ Its own top-level Page (not an About subsection) covering career history: Work E
 _Avoid_: CV, About's Resume subsection (retired — Resume is no longer nested under About)
 
 **Lighthouse Widget**:
-The About page's "This site" subsection's display of the Lighthouse Snapshot — category scores (Performance, Accessibility, Best Practices, SEO) and lab Core Web Vitals proxies (LCP, CLS, TBT) for Home, About, Resume, and the Blog index. A compact grid, not prose, matching the site's data-dense visual direction.
+The About page's "This site" subsection's display of the latest Lighthouse Snapshot — category scores (Performance, Accessibility, Best Practices, SEO) and lab Core Web Vitals proxies (LCP, CLS, TBT) for Home, About, Resume, and the Blog index. A compact grid, not prose/cards, matching the site's data-dense visual direction (guntherjh/guntherjh.github.io#41). Each score/metric cell is color-coded against Lighthouse's/Core Web Vitals' own good/needs-improvement/poor thresholds, and shows a trend indicator against the immediately-previous run in the Snapshot's history (guntherjh/guntherjh.github.io#71, [ADR 0006](docs/adr/0006-lighthouse-snapshot-history.md)).
 _Avoid_: score badge, performance widget
 
 **Lighthouse Snapshot**:
-The data artifact (e.g. `src/_data/lighthouse.json`) the Lighthouse Widget renders — one Lighthouse Audit per tracked Page, captured against the real production URL after a merge to `master` and the resulting Pages deploy finish. Staleness on a failed run is acceptable — the previous Snapshot stays in place rather than breaking the build. Freshness is tied to merge activity only, no separate scheduled refresh.
+The data artifact (`src/_data/lighthouse.json`) the Lighthouse Widget renders — a bounded history of the last 10 Lighthouse Audit runs (newest first), each one Audit per tracked Page, captured against the real production URL after a merge to `master` and the resulting Pages deploy finish ([ADR 0006](docs/adr/0006-lighthouse-snapshot-history.md)). Staleness on a failed run is acceptable — the previous Snapshot stays in place rather than breaking the build. Freshness is tied to merge activity only, no separate scheduled refresh.
 _Avoid_: results, report
 
 **Lighthouse Audit** (Google's own term):
