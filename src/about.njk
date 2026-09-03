@@ -52,9 +52,20 @@ layout: layouts/base.njk
   <summary><h2>This site</h2></summary>
   <p>Work in progress.</p>
 
+  {# Latest run plus the one before it (may not exist yet — e.g. right
+     after guntherjh/guntherjh.github.io#71's Snapshot-shape migration, or
+     before the second-ever audit) for the trend indicators below. See
+     ADR 0006 for why the Snapshot retains history at all. #}
+  {% set latest = lighthouse.history[0] %}
+  {% set previous = lighthouse.history[1] %}
   <div class="lighthouse-widget">
     <table>
-      <caption>Lighthouse scores, last measured {{ lighthouse.capturedAt | readableDate }}</caption>
+      <caption>
+        Lighthouse scores, last measured {{ latest.capturedAt | readableDate }}
+        {%- if previous %}
+        — trend vs. previous audit ({{ previous.capturedAt | readableDate }})
+        {%- endif %}
+      </caption>
       <thead>
         <tr>
           <th scope="col">Page</th>
@@ -68,20 +79,37 @@ layout: layouts/base.njk
         </tr>
       </thead>
       <tbody>
-        {% for label, page in lighthouse.pages %}
+        {% for label, page in latest.pages %}
+        {% set prevPage = previous.pages[label] if previous else none %}
         <tr>
           <th scope="row">{{ label }}</th>
-          <td>{{ page.scores.performance }}</td>
-          <td>{{ page.scores.accessibility }}</td>
-          <td>{{ page.scores["best-practices"] }}</td>
-          <td>{{ page.scores.seo }}</td>
-          <td>{{ (page.lcp / 1000) | round(1) }}s</td>
-          <td>{{ page.cls }}</td>
-          <td>{{ page.tbt | round }}ms</td>
+          {% for key in ["performance", "accessibility", "best-practices", "seo"] %}
+          {% set value = page.scores[key] %}
+          {% set level = value | scoreLevel %}
+          {% set prevLevel = (prevPage.scores[key] | scoreLevel) if prevPage else none %}
+          {% set change = level | trend(prevLevel) %}
+          <td class="lh-cell lh-{{ level }}">
+            {{ value }}
+            {% if change %}<span class="lh-trend lh-trend-{{ change.outcome }}" aria-label="{{ change.outcome | capitalize }} since previous audit">{{ "▲" if change.direction == "up" else ("▼" if change.direction == "down" else "–") }}</span>{% endif %}
+          </td>
+          {% endfor %}
+          {% for key in ["lcp", "cls", "tbt"] %}
+          {% set value = page[key] %}
+          {% set level = value | metricLevel(key) %}
+          {% set prevLevel = (prevPage[key] | metricLevel(key)) if prevPage else none %}
+          {% set change = level | trend(prevLevel) %}
+          <td class="lh-cell lh-{{ level }}">
+            {% if key == "lcp" %}{{ (value / 1000) | round(1) }}s
+            {%- elif key == "tbt" %}{{ value | round }}ms
+            {%- else %}{{ value }}{% endif %}
+            {% if change %}<span class="lh-trend lh-trend-{{ change.outcome }}" aria-label="{{ change.outcome | capitalize }} since previous audit">{{ "▲" if change.direction == "up" else ("▼" if change.direction == "down" else "–") }}</span>{% endif %}
+          </td>
+          {% endfor %}
         </tr>
         {% endfor %}
       </tbody>
     </table>
+    <p class="lighthouse-legend">Green = good, orange = needs improvement, red = poor, per Lighthouse's own thresholds.</p>
   </div>
 </details>
 
