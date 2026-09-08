@@ -1,5 +1,7 @@
 # Lighthouse widget trend detail: a native-Popover toggletip, not a hover tooltip
 
+> **Superseded in part by [ADR 0008](0008-metric-definition-toggletips.md):** the `<details>` glossary described below was replaced with per-column definition toggletips. The trend-arrow decision in this ADR still stands.
+
 The Lighthouse Widget's per-cell trend arrows (guntherjh/guntherjh.github.io#71) show only *that* a score's tier changed since the previous audit, not the earlier value. To surface "was 78 (needs improvement), now 95 (good)" without always painting it into ~28 cells (which would break the compact-table constraint from #41), arrows that mark a real tier change are wrapped in a `<button popovertarget>` using the native HTML Popover API, and the previous value lives in the associated `popover` element — opened on click/tap/Enter, dismissed on Escape or outside click, with **zero JavaScript**. Flat arrows stay plain text; the ↑/↓/– symbols themselves are explained once in the colour legend. Metric-column *definitions* are handled separately — a `<dl>` glossary behind a `<details>` disclosure under the table, with `aria-describedby` from each `<th>` so the definition reaches assistive tech even while the glossary is collapsed.
 
 ## Considered options

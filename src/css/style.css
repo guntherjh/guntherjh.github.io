@@ -580,8 +580,10 @@ time {
 /* The trend marker is a <button> only when it opens a toggletip (an actual
    tier change — guntherjh/guntherjh.github.io#124, ADR 0007). It should
    still read as the bare coloured glyph it was before; interactivity is
-   signalled by the pointer cursor and a focus ring alone. */
-button.lh-trend {
+   signalled by the pointer cursor and a focus ring alone. The ⓘ definition
+   trigger (ADR 0008) is the same kind of bare-glyph toggletip button. */
+button.lh-trend,
+.lh-def-trigger {
 	padding: 0;
 	border: 0;
 	background: none;
@@ -591,10 +593,24 @@ button.lh-trend {
 	cursor: pointer;
 }
 
-button.lh-trend:focus-visible {
+button.lh-trend:focus-visible,
+.lh-def-trigger:focus-visible {
 	outline: 2px solid var(--color-accent);
 	outline-offset: 2px;
 	border-radius: 2px;
+}
+
+/* The ⓘ definition trigger: a small muted glyph after the column label
+   (in the header on desktop, in each cell in the mobile card layout —
+   display-swapped at 640px below so exactly one is active). */
+.lh-def-trigger {
+	margin-left: 0.25rem;
+	color: var(--color-muted);
+	font-size: 0.85em;
+}
+
+.lh-def-trigger-cell {
+	display: none;
 }
 
 .lh-trend-improved {
@@ -614,8 +630,11 @@ button.lh-trend:focus-visible {
    overflow), stays put regardless of which row's arrow opened it, and
    needs no CSS anchor-positioning support to land somewhere sensible. The
    panel names its own metric ("Performance 100 (good)…") so it's never
-   ambiguous which arrow it belongs to, and the arrow keeps its focus ring. */
-.lh-trend-detail {
+   ambiguous which arrow it belongs to, and the arrow keeps its focus ring.
+   The ⓘ definition panels (ADR 0008) share the treatment for the same
+   reasons and self-identify the same way ("Performance (Perf) — …"). */
+.lh-trend-detail,
+.lh-def-detail {
 	display: none;
 	position: fixed;
 	inset: auto;
@@ -640,7 +659,8 @@ button.lh-trend:focus-visible {
 /* Shown only while open, and only where :popover-open is understood — in a
    browser without Popover API support the trigger is inert and this stays
    hidden (the sentence is still on the button via aria-describedby). */
-.lh-trend-detail:popover-open {
+.lh-trend-detail:popover-open,
+.lh-def-detail:popover-open {
 	display: block;
 }
 
@@ -650,35 +670,10 @@ button.lh-trend:focus-visible {
 	font-size: 0.8rem;
 }
 
-.lighthouse-legend-trend {
+.lighthouse-legend-trend,
+.lighthouse-legend-def {
 	display: block;
 	margin-top: 0.25rem;
-}
-
-.lighthouse-glossary {
-	margin-top: 0.75rem;
-	color: var(--color-muted);
-	font-size: 0.8rem;
-}
-
-.lighthouse-glossary summary {
-	cursor: pointer;
-}
-
-.lighthouse-glossary dl {
-	margin: 0.5rem 0 0;
-}
-
-.lighthouse-glossary div + div {
-	margin-top: 0.4rem;
-}
-
-.lighthouse-glossary dt {
-	font-weight: 600;
-}
-
-.lighthouse-glossary dd {
-	margin: 0;
 }
 
 /* Below the mobile-nav breakpoint the 8-column grid can't fit without
@@ -692,6 +687,17 @@ button.lh-trend:focus-visible {
 @media (max-width: 640px) {
 	.lighthouse-table-scroll {
 		overflow: visible;
+	}
+
+	/* The column headers are visually hidden in the card layout, so the
+	   header ⓘ triggers go with them; the per-cell copies take over. Swapped
+	   by display (not just visibility) so neither adds a dead tab stop. */
+	.lh-def-trigger-head {
+		display: none;
+	}
+
+	.lh-def-trigger-cell {
+		display: inline;
 	}
 
 	.lighthouse-widget table,
