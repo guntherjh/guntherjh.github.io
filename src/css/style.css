@@ -625,16 +625,14 @@ button.lh-trend:focus-visible,
 	color: var(--color-muted);
 }
 
-/* The toggletip is a bottom-centered panel, not a bubble tethered to the
-   arrow: it renders in the top layer (never clipped by the table's
-   overflow), stays put regardless of which row's arrow opened it, and
-   needs no CSS anchor-positioning support to land somewhere sensible. The
-   panel names its own metric ("Performance 100 (good)…") so it's never
-   ambiguous which arrow it belongs to, and the arrow keeps its focus ring.
-   The ⓘ definition panels (ADR 0008) start from this treatment too, and
-   likewise self-identify ("Performance (Perf) — …") — but where anchor
-   positioning is available they upgrade to sitting against their ⓘ (see
-   the @supports block below). */
+/* Base treatment for both toggletip panels — the trend arrow's (ADR 0007)
+   and the ⓘ definition's (ADR 0008). A bottom-centered panel in the top
+   layer (never clipped by the table's overflow), reachable without any
+   CSS anchor-positioning support. Each panel names its own metric
+   ("Performance 100 (good)…" / "Performance (Perf) — …") so it's never
+   ambiguous which glyph it belongs to, and the glyph keeps its focus
+   ring. Where anchor positioning is available, the @supports block below
+   upgrades both to sit against the glyph that opened them. */
 .lh-trend-detail,
 .lh-def-detail {
 	display: none;
@@ -666,14 +664,16 @@ button.lh-trend:focus-visible,
 	display: block;
 }
 
-/* Collocate each definition panel with the ⓘ that opened it. A popover
-   invoked through popovertarget takes its invoker as an implicit anchor,
-   so position-area resolves against whichever ⓘ — the header copy or a
-   cell copy — was activated, with no per-glyph anchor-name needed. Where
-   anchor positioning is absent (Firefox, at time of writing) the
-   bottom-centered rule above stands. Scoped to .lh-def-detail; the trend
-   panels keep ADR 0007's untethered treatment. */
+/* Collocate each panel with the glyph that opened it — the trend ↑/↓
+   button or an ⓘ. A popover invoked through popovertarget takes its
+   invoker as an implicit anchor, so position-area resolves against
+   whichever button was activated (for the ⓘ, the header or a cell copy;
+   for a trend arrow there's only ever one), with no per-glyph anchor-name
+   needed. Where anchor positioning is absent (Firefox, at time of
+   writing) the bottom-centered rule above stands, which is why the panels
+   still self-identify. */
 @supports (position-area: top) {
+	.lh-trend-detail,
 	.lh-def-detail {
 		position: absolute;
 		bottom: auto;
