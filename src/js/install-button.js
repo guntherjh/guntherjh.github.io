@@ -56,16 +56,18 @@
 			// multi-page site), which re-arms them.
 			promptEvent = null;
 			try {
-				event.prompt();
+				// Both are awaited so a rejection (spent event,
+				// browser-internal failure) lands in the catch below
+				// rather than as an unhandled rejection in the console.
+				await event.prompt();
 				const { outcome } = await event.userChoice;
 				// Installed: hide the controls (`appinstalled` fires too,
 				// but don't let them linger for a frame).
 				if (outcome === "accepted") setHidden(true);
 			} catch {
-				// prompt()/userChoice can reject (event already spent,
-				// browser-internal failure). Progressive enhancement —
-				// swallow it silently like register-sw.js does rather
-				// than surfacing a console error.
+				// Progressive enhancement — swallow it silently like
+				// register-sw.js does rather than surfacing a console
+				// error to the visitor.
 			}
 		});
 	});
