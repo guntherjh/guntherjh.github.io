@@ -34,6 +34,17 @@
       document.documentElement.setAttribute("data-theme", effective);
     })();
   </script>
+  <script>
+    // Captures `beforeinstallprompt` as early as possible — it can fire
+    // before the deferred /js/install-button.js runs, and the event
+    // can't be retrieved afterward. Stashed on window here; the deferred
+    // script consumes it (same inline-capture pattern as the theme
+    // script above). Chromium-only event; no-op everywhere else.
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      window.__installPromptEvent = e;
+    });
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
@@ -47,10 +58,11 @@
          overriding <details>'s native closed-content hiding, which
          turned out not to be reliably overridable that way.
 
-         DUPLICATE MARKUP WARNING: the nav links and toggle button here
-         are repeated verbatim in the mobile <details> block below.
-         Keep both in sync — adding/removing a nav link or changing the
-         toggle button's markup/label means editing both copies. -->
+         DUPLICATE MARKUP WARNING: the nav links, install button, and
+         toggle button here are repeated verbatim in the mobile
+         <details> block below. Keep both in sync — adding/removing a
+         nav link or changing the install/toggle button markup means
+         editing both copies. -->
     <div class="site-header-controls">
       <nav class="site-nav">
         <a href="/">Home</a>
@@ -58,6 +70,9 @@
         <a href="/resume/">Resume</a>
         <a href="/blog/">Blog</a>
       </nav>
+      <!-- Unhidden by /js/install-button.js only when the browser has
+           offered a PWA install (Chromium only). -->
+      <button type="button" class="install-button" hidden>Install</button>
       <button type="button" class="theme-toggle" role="switch" aria-checked="false" aria-label="Dark mode">
         <span class="theme-toggle-thumb" aria-hidden="true"></span>
       </button>
@@ -78,6 +93,8 @@
           <a href="/resume/">Resume</a>
           <a href="/blog/">Blog</a>
         </nav>
+        <!-- DUPLICATE — see .site-header-controls above; keep in sync. -->
+        <button type="button" class="install-button" hidden>Install</button>
         <button type="button" class="theme-toggle" role="switch" aria-checked="false" aria-label="Dark mode">
           <span class="theme-toggle-thumb" aria-hidden="true"></span>
         </button>
@@ -103,5 +120,6 @@
   <script src="/js/theme-toggle.js"></script>
   <script src="/js/nav-toggle.js" defer></script>
   <script src="/js/register-sw.js" defer></script>
+  <script src="/js/install-button.js" defer></script>
 </body>
 </html>
