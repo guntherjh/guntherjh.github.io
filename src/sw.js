@@ -34,6 +34,7 @@ const PRECACHE_URLS = [
 	"/js/nav-toggle.js",
 	"/js/about-sections.js",
 	"/js/resume-sections.js",
+	"/js/install-button.js",
 ];
 
 self.addEventListener("install", (event) => {

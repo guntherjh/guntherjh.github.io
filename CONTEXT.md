@@ -55,3 +55,11 @@ _Avoid_: workout, entry
 **Stats** (Strava's own term, short for "athlete stats"):
 Aggregate per-sport totals (count, distance, moving time, elevation gain) over Strava's "recent" (last 4 weeks) window — not a single blended total across sport types, and not year-to-date or all-time.
 _Avoid_: totals, summary
+
+**Progressive Web App (PWA)**:
+The site's installable, offline-capable mode — a web app manifest (`src/manifest.webmanifest`), a service worker (`src/sw.js`), and SVG/PNG icons — that lets a browser install the site as a standalone app (guntherjh/guntherjh.github.io#5). Offline behavior is spelled out in `CODING_STANDARDS.md`; this term names the umbrella concept.
+_Avoid_: web app, app mode
+
+**Install Button**:
+The header control (before the Theme Toggle, duplicated across the desktop and mobile nav blocks) that fires the browser's install prompt for the PWA. Labelled "Install app", paired with an `ⓘ` toggletip — the same native-Popover pattern as the Lighthouse Widget's metric `ⓘ` ([ADR 0007](docs/adr/0007-trend-toggletip-native-popover.md), [ADR 0008](docs/adr/0008-metric-definition-toggletips.md)) — giving a plain-language explanation of what installing does, since a bare button wouldn't tell a non-technical visitor. Chromium-only: hidden where the browser has no programmatic install (Safari/iOS, Firefox) and when the site is already running installed. Deliberately not an iOS "Add to Home Screen" instruction UI — that path stays on the browser's own Share menu (guntherjh/guntherjh.github.io#146).
+_Avoid_: Add to Home Screen button, PWA button, install prompt (the prompt is the browser's; this is the button that triggers it)

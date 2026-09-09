@@ -29,7 +29,14 @@
 	if (!navToggle) return;
 
 	document.addEventListener("pointerdown", (event) => {
-		if (navToggle.open && !navToggle.contains(event.target)) {
+		if (!navToggle.open) return;
+		// A tap on an open popover (the install button's ⓘ toggletip is
+		// one, and its panel renders in the top layer outside .nav-toggle)
+		// is part of interacting with the panel, not an outside click —
+		// let the popover light-dismiss itself without also collapsing the
+		// whole menu.
+		if (event.target.closest("[popover]")) return;
+		if (!navToggle.contains(event.target)) {
 			navToggle.open = false;
 		}
 	});
