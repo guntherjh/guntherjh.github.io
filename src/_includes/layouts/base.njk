@@ -71,8 +71,16 @@
         <a href="/blog/">Blog</a>
       </nav>
       <!-- Unhidden by /js/install-button.js only when the browser has
-           offered a PWA install (Chromium only). -->
-      <button type="button" class="install-button" hidden>Install</button>
+           offered a PWA install (Chromium only). The ⓘ opens a plain-
+           language explanation via the same native-Popover toggletip
+           pattern as the Lighthouse Widget's metric ⓘ (ADR 0007 / ADR
+           0008); its panel is the single #install-help <span popover>
+           below, shared with the mobile copy since only one control
+           block is ever visible at a time. -->
+      <span class="install-control" hidden>
+        <button type="button" class="install-button" aria-describedby="install-help">Install app</button>
+        <button type="button" class="install-help" popovertarget="install-help" aria-label="About installing this site" aria-describedby="install-help"><span aria-hidden="true">ⓘ</span></button>
+      </span>
       <button type="button" class="theme-toggle" role="switch" aria-checked="false" aria-label="Dark mode">
         <span class="theme-toggle-thumb" aria-hidden="true"></span>
       </button>
@@ -93,13 +101,26 @@
           <a href="/resume/">Resume</a>
           <a href="/blog/">Blog</a>
         </nav>
-        <!-- DUPLICATE — see .site-header-controls above; keep in sync. -->
-        <button type="button" class="install-button" hidden>Install</button>
+        <!-- DUPLICATE — see .site-header-controls above; keep in sync.
+             Both .install-help ⓘ triggers point at the one #install-help
+             popover below. -->
+        <span class="install-control" hidden>
+          <button type="button" class="install-button" aria-describedby="install-help">Install app</button>
+          <button type="button" class="install-help" popovertarget="install-help" aria-label="About installing this site" aria-describedby="install-help"><span aria-hidden="true">ⓘ</span></button>
+        </span>
         <button type="button" class="theme-toggle" role="switch" aria-checked="false" aria-label="Dark mode">
           <span class="theme-toggle-thumb" aria-hidden="true"></span>
         </button>
       </div>
     </details>
+
+    <!-- One shared panel for both .install-control ⓘ triggers above
+         (desktop + mobile) — only one control block is ever visible, so a
+         single popover id is enough, same as the Lighthouse Widget's ⓘ
+         panels. Also the target of each Install button's
+         aria-describedby, so the explanation still reaches assistive tech
+         in a browser without Popover API support. -->
+    <span popover id="install-help" class="install-help-detail">Adds this site to your device as a standalone app: it opens in its own window, works offline, and gets a launcher icon. Nothing is downloaded from an app store.</span>
   </header>
 
   <main class="site-main" id="main-content">

@@ -177,12 +177,27 @@ a {
 }
 
 /* PWA install button (guntherjh/guntherjh.github.io#146): a compact pill
-   sitting just before the theme toggle in the header controls, unhidden
-   by /js/install-button.js only when the browser has offered a
-   programmatic install. Panel fill + border + small radius so it reads
-   as part of the same control cluster as .nav-toggle-summary and
+   plus an ⓘ toggletip, sitting just before the theme toggle in the
+   header controls. .install-control wraps both so they hide together;
+   /js/install-button.js unhides it only when the browser has offered a
+   programmatic install. Panel fill + border + small radius so the pill
+   reads as part of the same control cluster as .nav-toggle-summary and
    .theme-toggle. --color-text on --color-panel is an AA-checked pair in
    both themes (see palette comment at the top of this file). */
+.install-control {
+	display: inline-flex;
+	align-items: center;
+	margin-left: 1rem;
+	flex-shrink: 0;
+}
+
+/* An author `display` rule outweighs the UA `[hidden] { display: none }`,
+   so restore it explicitly — install-button.js toggles the `hidden`
+   attribute to show/hide this wrapper. */
+.install-control[hidden] {
+	display: none;
+}
+
 .install-button {
 	cursor: pointer;
 	font: inherit;
@@ -192,8 +207,6 @@ a {
 	border: 1px solid var(--color-border);
 	border-radius: 4px;
 	padding: 0.25rem 0.6rem;
-	margin-left: 1rem;
-	flex-shrink: 0;
 }
 
 .install-button:hover {
@@ -203,6 +216,27 @@ a {
 .install-button:focus-visible {
 	outline: 2px solid var(--color-accent);
 	outline-offset: 2px;
+}
+
+/* The ⓘ trigger: a bare muted glyph after the pill — same treatment as
+   the Lighthouse Widget's .lh-def-trigger (ADR 0008), interactivity
+   signalled by cursor + focus ring only. */
+.install-help {
+	margin-left: 0.35rem;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	line-height: 1;
+	font-size: 0.9em;
+	color: var(--color-muted);
+	cursor: pointer;
+}
+
+.install-help:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+	border-radius: 2px;
 }
 
 .theme-toggle-thumb {
@@ -365,7 +399,7 @@ html[data-theme="dark"] .theme-toggle-thumb::before {
 	}
 
 	.nav-toggle-panel .theme-toggle,
-	.nav-toggle-panel .install-button {
+	.nav-toggle-panel .install-control {
 		margin-left: 0;
 	}
 }
@@ -655,16 +689,19 @@ button.lh-trend:focus-visible,
 	color: var(--color-muted);
 }
 
-/* Base treatment for both toggletip panels — the trend arrow's (ADR 0007)
-   and the ⓘ definition's (ADR 0008). A bottom-centered panel in the top
-   layer (never clipped by the table's overflow), reachable without any
-   CSS anchor-positioning support. Each panel names its own metric
+/* Base treatment for the toggletip panels — the Lighthouse trend arrow's
+   (ADR 0007), the Lighthouse metric ⓘ's (ADR 0008), and the header
+   install button's ⓘ (guntherjh/guntherjh.github.io#146), all the same
+   native-Popover mechanism. A bottom-centered panel in the top layer
+   (never clipped by a scroll container), reachable without any CSS
+   anchor-positioning support. Each Lighthouse panel names its own metric
    ("Performance 100 (good)…" / "Performance (Perf) — …") so it's never
    ambiguous which glyph it belongs to, and the glyph keeps its focus
    ring. Where anchor positioning is available, the @supports block below
-   upgrades both to sit against the glyph that opened them. */
+   upgrades them to sit against the glyph that opened them. */
 .lh-trend-detail,
-.lh-def-detail {
+.lh-def-detail,
+.install-help-detail {
 	display: none;
 	position: fixed;
 	inset: auto;
@@ -690,7 +727,8 @@ button.lh-trend:focus-visible,
    browser without Popover API support the trigger is inert and this stays
    hidden (the sentence is still on the button via aria-describedby). */
 .lh-trend-detail:popover-open,
-.lh-def-detail:popover-open {
+.lh-def-detail:popover-open,
+.install-help-detail:popover-open {
 	display: block;
 }
 
@@ -704,7 +742,8 @@ button.lh-trend:focus-visible,
    still self-identify. */
 @supports (position-area: top) {
 	.lh-trend-detail,
-	.lh-def-detail {
+	.lh-def-detail,
+	.install-help-detail {
 		position: absolute;
 		bottom: auto;
 		left: auto;
