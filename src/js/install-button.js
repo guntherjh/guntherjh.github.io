@@ -46,15 +46,24 @@
 			if (!promptEvent) return;
 			const event = promptEvent;
 			// A given `beforeinstallprompt` can be prompt()ed only once —
-			// drop our reference now, whatever the visitor chooses.
+			// drop our reference now, whatever the visitor chooses. A
+			// dismissal therefore leaves the buttons visible but inert
+			// for the rest of this page view; Chrome re-fires
+			// `beforeinstallprompt` on the next full page load (this is a
+			// multi-page site), which re-arms them.
 			promptEvent = null;
-			event.prompt();
-			const { outcome } = await event.userChoice;
-			// Installed: hide the buttons (`appinstalled` fires too, but
-			// don't let them linger for a frame). Dismissed: leave them —
-			// Chrome re-dispatches `beforeinstallprompt` on a later
-			// navigation and the listener above picks up a fresh event.
-			if (outcome === "accepted") setHidden(true);
+			try {
+				event.prompt();
+				const { outcome } = await event.userChoice;
+				// Installed: hide the buttons (`appinstalled` fires too,
+				// but don't let them linger for a frame).
+				if (outcome === "accepted") setHidden(true);
+			} catch {
+				// prompt()/userChoice can reject (event already spent,
+				// browser-internal failure). Progressive enhancement —
+				// swallow it silently like register-sw.js does rather
+				// than surfacing a console error.
+			}
 		});
 	});
 
