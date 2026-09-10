@@ -95,6 +95,114 @@ export function trendDetail({
 	);
 }
 
+// Lighthouse widget Score Donut + Trend Sparkline (guntherjh/guntherjh.github.io#151,
+// [ADR 0009](docs/adr/0009-trend-sparkline-raw-history.md)): the four
+// category-score cells render their score as a donut ring, and the
+// Performance/LCP/CLS/TBT cells carry a sparkline over the retained Snapshot
+// history. Both are build-time inline SVG produced by these pure functions —
+// no client JS, no charting dependency — and both are decorative
+// (`aria-hidden`): the visible numeral and the tier arrow above stay the
+// accessible value and trend story.
+
+const round2 = (n) => Math.round(n * 100) / 100;
+
+// A full ring filled clockwise from 12 o'clock in proportion to a 0-100
+// score. `pathLength="100"` normalises the circumference to 100 units, so
+// the score is the dash length directly and no circumference math is needed.
+// Colour lives in the stylesheet: the arc inherits the cell's tier colour
+// via `currentColor` (the <td> already carries lh-good/lh-average/lh-poor),
+// the track is the border token. `level` is only stamped onto the arc's
+// class so the rendered DOM says which tier it is. A zero score renders the
+// track alone — a round dash cap at 0 would otherwise show a misleading
+// speck.
+export function donutSvg(score, level) {
+	const filled = Math.max(0, Math.min(100, score));
+	const arc =
+		filled > 0
+			? `<circle class="lh-donut-arc lh-${level}" cx="18" cy="18" r="16" fill="none" stroke-width="3" stroke-linecap="round" pathLength="100" stroke-dasharray="${round2(filled)} ${round2(100 - filled)}" transform="rotate(-90 18 18)"/>`
+			: "";
+	return (
+		`<svg class="lh-donut" viewBox="0 0 36 36" aria-hidden="true" focusable="false">` +
+		`<circle class="lh-donut-track" cx="18" cy="18" r="16" fill="none" stroke-width="3"/>` +
+		`${arc}</svg>`
+	);
+}
+
+// The fixed vertical domain each metric's sparkline is drawn against —
+// anchored to the good/needs-improvement thresholds, NOT the data's own
+// min/max. Auto-fitting would make lab noise (Performance 100, 90, 100, 85,
+// 88 with no code change) fill the full height; a fixed domain keeps a noisy
+// run reading as a nearly flat line. See ADR 0006 / ADR 0009.
+const SPARK_DOMAIN = {
+	performance: [0, 100],
+	lcp: [0, 4000],
+	tbt: [0, 600],
+	cls: [0, 0.25],
+};
+
+// A faint polyline of a metric's raw value across the retained history,
+// oldest run at the left, with a dot on the newest point. Points outside the
+// fixed domain clamp to the edge. Returns "" for fewer than two points
+// (nothing to trace — e.g. right after the first-ever audit) or a metric
+// with no domain (the category scores other than Performance don't get a
+// sparkline). Decorative: the tier arrow beside it carries the trend meaning
+// for assistive tech.
+export function sparklineSvg(values, metricKey) {
+	const domain = SPARK_DOMAIN[metricKey];
+	if (!domain || !Array.isArray(values) || values.length < 2) return "";
+
+	const [lo, hi] = domain;
+	const width = 48;
+	const height = 12;
+	// padX is just enough to keep the round stroke cap off the left/right
+	// edge. padY is larger on purpose: it keeps the plotted band vertically
+	// centred in the box, so a flat line at a domain extreme (Performance
+	// pinned at 100, CLS at 0) still sits near the row's centre-line instead
+	// of hugging the box edge and reading as misaligned with the donut and
+	// arrow beside it.
+	const padX = 1.5;
+	const padY = 3.5;
+	const span = hi - lo || 1;
+	const points = values.map((value, i) => {
+		const x = padX + (i / (values.length - 1)) * (width - 2 * padX);
+		const clamped = Math.max(lo, Math.min(hi, value));
+		const y = padY + (1 - (clamped - lo) / span) * (height - 2 * padY);
+		return [round2(x), round2(y)];
+	});
+	const d = points
+		.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x} ${y}`)
+		.join(" ");
+	const [lastX, lastY] = points[points.length - 1];
+
+	return (
+		`<svg class="lh-spark" viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">` +
+		`<path d="${d}" fill="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>` +
+		`<circle cx="${lastX}" cy="${lastY}" r="1.3"/></svg>`
+	);
+}
+
+const CWV_KEYS = new Set(["lcp", "cls", "tbt"]);
+
+// Pulls one page+metric's value out of every retained run for sparklineSvg,
+// oldest run first (the Snapshot stores newest-first — see ADR 0006). Core
+// Web Vitals live at the run's top level, category scores under `.scores`,
+// mirroring the split in src/about.njk. Runs missing that page or a numeric
+// value for it are skipped, so a page added to the audit set later doesn't
+// break the older runs' sparklines.
+export function historyValues(history, label, key) {
+	if (!Array.isArray(history)) return [];
+	return history
+		.slice()
+		.reverse()
+		.map((run) => {
+			const page = run?.pages?.[label];
+			if (!page) return null;
+			const value = CWV_KEYS.has(key) ? page[key] : page.scores?.[key];
+			return typeof value === "number" ? value : null;
+		})
+		.filter((value) => value !== null);
+}
+
 export default function (eleventyConfig) {
 	eleventyConfig.addPlugin(pluginRss);
 
@@ -171,6 +279,12 @@ export default function (eleventyConfig) {
 	eleventyConfig.addFilter("metricLevel", metricLevel);
 	eleventyConfig.addFilter("trend", trend);
 	eleventyConfig.addFilter("trendDetail", trendDetail);
+
+	// Lighthouse widget Score Donut / Trend Sparkline
+	// (guntherjh/guntherjh.github.io#151, ADR 0009) — pure functions above.
+	eleventyConfig.addFilter("donutSvg", donutSvg);
+	eleventyConfig.addFilter("sparklineSvg", sparklineSvg);
+	eleventyConfig.addFilter("historyValues", historyValues);
 
 	return {
 		dir: {

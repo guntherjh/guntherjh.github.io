@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+	donutSvg,
+	historyValues,
 	metricLevel,
 	scoreLevel,
+	sparklineSvg,
 	trend,
 	trendDetail,
 } from "./eleventy.config.js";
@@ -147,5 +150,121 @@ describe("trendDetail", () => {
 				previousDate: undefined,
 			}),
 		).toBe("");
+	});
+});
+
+describe("donutSvg", () => {
+	it("draws a track ring and a value arc, decorative to assistive tech", () => {
+		const svg = donutSvg(75, "good");
+		expect(svg).toContain('aria-hidden="true"');
+		expect(svg).toContain("lh-donut-track");
+		expect(svg).toContain("lh-donut-arc");
+		expect((svg.match(/<circle/g) || []).length).toBe(2);
+	});
+
+	it("encodes the score as the filled fraction of a pathLength-100 ring", () => {
+		expect(donutSvg(75, "good")).toContain('stroke-dasharray="75 25"');
+		expect(donutSvg(0.4 + 0.1, "good")).toContain(
+			'stroke-dasharray="0.5 99.5"',
+		);
+	});
+
+	it("tags the arc with the tier so the DOM is self-describing", () => {
+		expect(donutSvg(40, "poor")).toContain("lh-donut-arc lh-poor");
+		expect(donutSvg(95, "good")).toContain("lh-donut-arc lh-good");
+	});
+
+	it("fills the whole ring at 100 and omits the arc entirely at 0", () => {
+		expect(donutSvg(100, "good")).toContain('stroke-dasharray="100 0"');
+		const zero = donutSvg(0, "poor");
+		expect(zero).not.toContain("lh-donut-arc");
+		expect((zero.match(/<circle/g) || []).length).toBe(1);
+	});
+
+	it("clamps scores outside 0–100", () => {
+		expect(donutSvg(140, "good")).toContain('stroke-dasharray="100 0"');
+		expect(donutSvg(-20, "poor")).not.toContain("lh-donut-arc");
+	});
+});
+
+describe("sparklineSvg", () => {
+	const yValues = (svg) =>
+		[...svg.matchAll(/[ML]([\d.]+) ([\d.]+)/g)].map((m) => Number(m[2]));
+
+	it("returns nothing when there is fewer than one segment to draw", () => {
+		expect(sparklineSvg([], "performance")).toBe("");
+		expect(sparklineSvg([90], "performance")).toBe("");
+	});
+
+	it("returns nothing for a metric with no fixed domain", () => {
+		expect(sparklineSvg([90, 100, 95], "accessibility")).toBe("");
+	});
+
+	it("plots one point per run, oldest to newest, decorative", () => {
+		const svg = sparklineSvg([90, 100, 85, 88], "performance");
+		expect(svg).toContain('aria-hidden="true"');
+		expect((svg.match(/[ML][\d.]+ [\d.]+/g) || []).length).toBe(4);
+		expect(svg).toMatch(/^<svg[^>]*>\s*<path/);
+	});
+
+	it("marks the newest point with a dot", () => {
+		const svg = sparklineSvg([90, 100], "performance");
+		expect(svg).toContain("<circle");
+	});
+
+	it("scales against the fixed per-metric domain, not the data range", () => {
+		// 90 and 100 against a 0–100 domain sit close together near the top of
+		// the plotted band — not spread across the full height the way an
+		// auto-fit scale (which would push 90 to the bottom) would place them.
+		const ys = yValues(sparklineSvg([90, 100], "performance"));
+		expect(Math.max(...ys)).toBeLessThan(5);
+		expect(ys[0]).not.toEqual(ys[1]);
+	});
+
+	it("clamps points outside the domain to the edges of the box", () => {
+		const ys = yValues(sparklineSvg([-500, 50, 9000], "lcp"));
+		for (const y of ys) {
+			expect(y).toBeGreaterThanOrEqual(0);
+			expect(y).toBeLessThanOrEqual(12);
+		}
+		// first point below the domain -> bottom edge; last above -> top edge
+		expect(ys[0]).toBeGreaterThan(ys[1]);
+		expect(ys[2]).toBeLessThan(ys[1]);
+	});
+
+	it("draws a flat line when every run has the same value (e.g. CLS 0)", () => {
+		const ys = yValues(sparklineSvg([0, 0, 0, 0], "cls"));
+		expect(new Set(ys).size).toBe(1);
+	});
+});
+
+describe("historyValues", () => {
+	const history = [
+		{ pages: { Home: { scores: { performance: 88 }, lcp: 1200 } } },
+		{ pages: { Home: { scores: { performance: 100 }, lcp: 900 } } },
+		{ pages: { Home: { scores: { performance: 95 }, lcp: 1000 } } },
+	];
+
+	it("returns a page+metric's values oldest run first", () => {
+		expect(historyValues(history, "Home", "performance")).toEqual([
+			95, 100, 88,
+		]);
+	});
+
+	it("reads Core Web Vitals from the run's top level, scores from .scores", () => {
+		expect(historyValues(history, "Home", "lcp")).toEqual([1000, 900, 1200]);
+	});
+
+	it("skips runs missing that page or a numeric value for it", () => {
+		const patchy = [
+			{ pages: { Home: { scores: { performance: 90 } } } },
+			{ pages: { About: { scores: { performance: 80 } } } },
+			{ pages: { Home: { scores: {} } } },
+		];
+		expect(historyValues(patchy, "Home", "performance")).toEqual([90]);
+	});
+
+	it("returns an empty array when there is no history", () => {
+		expect(historyValues(undefined, "Home", "performance")).toEqual([]);
 	});
 });
