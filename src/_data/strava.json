@@ -1,6 +1,13 @@
 {
-	"capturedAt": "2026-09-09T09:33:32.254Z",
+	"capturedAt": "2026-09-10T09:32:36.766Z",
 	"activities": [
+		{
+			"type": "Run",
+			"name": "Post op hop",
+			"distance": 8124.3,
+			"moving_time": 2346,
+			"start_date": "2026-09-09T13:08:37Z"
+		},
 		{
 			"type": "Run",
 			"name": "Evening Run",
@@ -28,13 +35,6 @@
 			"distance": 9688.1,
 			"moving_time": 3348,
 			"start_date": "2026-08-15T21:33:12Z"
-		},
-		{
-			"type": "Run",
-			"name": "Evening Run",
-			"distance": 8096.8,
-			"moving_time": 2256,
-			"start_date": "2026-08-14T00:05:59Z"
 		}
 	],
 	"stats": {
@@ -45,10 +45,10 @@
 			"elevation_gain": 0
 		},
 		"Run": {
-			"count": 3,
-			"distance": 25842.1,
-			"moving_time": 7850,
-			"elevation_gain": 383
+			"count": 4,
+			"distance": 33966.4,
+			"moving_time": 10196,
+			"elevation_gain": 468
 		}
 	}
 }
