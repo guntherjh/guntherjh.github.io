@@ -143,7 +143,13 @@ layout: layouts/base.njk
               label: metricNames[key], currentDisplay: value, currentLevel: level,
               previousDisplay: prevValue, previousLevel: prevLevel, previousDate: previousDate
             } | trendDetail %}
-            <td class="lh-cell lh-{{ level }}" data-label="{{ metricNames[key] }}">{{ value }}{{ trendMarker(change, label, metricNames[key], key, detail) }}{{ defTrigger(key, "cell") }}</td>
+            {# Score Donut on every category cell; Trend Sparkline only where
+               sparklineSvg() has a fixed domain (Performance among these —
+               it returns "" for the rest). Both are aria-hidden inline SVG:
+               the numeral stays real text and the tier arrow keeps carrying
+               the trend (guntherjh/guntherjh.github.io#151, ADR 0009). #}
+            {% set spark = lighthouse.history | historyValues(label, key) | sparklineSvg(key) %}
+            <td class="lh-cell lh-{{ level }}" data-label="{{ metricNames[key] }}"><span class="lh-cell-inner"><span class="lh-cell-row"><span class="lh-donut-wrap">{{ value | donutSvg(level) | safe }}<span class="lh-donut-num">{{ value }}</span></span>{{ trendMarker(change, label, metricNames[key], key, detail) }}{{ defTrigger(key, "cell") }}</span>{{ spark | safe }}</span></td>
             {% endfor %}
             {% for key in ["lcp", "cls", "tbt"] %}
             {% set value = page[key] %}
@@ -156,7 +162,11 @@ layout: layouts/base.njk
               previousDisplay: (fmtMetric(key, prevValue) | trim) if prevValue is not none else none,
               previousLevel: prevLevel, previousDate: previousDate
             } | trendDetail %}
-            <td class="lh-cell lh-{{ level }}" data-label="{{ metricNames[key] }}">{{ fmtMetric(key, value) }}{{ trendMarker(change, label, metricNames[key], key, detail) }}{{ defTrigger(key, "cell") }}</td>
+            {# Trend Sparkline on LCP/CLS/TBT (guntherjh/guntherjh.github.io#151,
+               ADR 0009). No donut — these have no natural 0–100 max; the
+               threshold-coloured numeral stays as-is. #}
+            {% set spark = lighthouse.history | historyValues(label, key) | sparklineSvg(key) %}
+            <td class="lh-cell lh-{{ level }}" data-label="{{ metricNames[key] }}"><span class="lh-cell-inner"><span class="lh-cell-row">{{ fmtMetric(key, value) }}{{ trendMarker(change, label, metricNames[key], key, detail) }}{{ defTrigger(key, "cell") }}</span>{{ spark | safe }}</span></td>
             {% endfor %}
           </tr>
           {% endfor %}
@@ -165,6 +175,7 @@ layout: layouts/base.njk
     </div>
     <p class="lighthouse-legend">
       Green = good, orange = needs improvement, red = poor, per Lighthouse's own thresholds.
+      <span class="lighthouse-legend-spark">The faint line in a cell traces that metric across the last few audits (newest at right); it plots raw values, not tiers, so short wobbles are normal lab noise — the ↑ ↓ – arrow is the real tier signal.</span>
       <span class="lighthouse-legend-trend">↑ ↓ – show whether a score's tier improved, regressed, or held since the previous audit — activate ↑ or ↓ for the earlier value.</span>
       <span class="lighthouse-legend-def">Select ⓘ next to a metric for more about it.</span>
     </p>

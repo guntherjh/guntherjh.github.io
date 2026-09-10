@@ -636,6 +636,91 @@ time {
 	color: var(--color-lh-poor);
 }
 
+/* Score Donut + Trend Sparkline (guntherjh/guntherjh.github.io#151, ADR
+   0009). Both are decorative inline SVG built at build time in
+   eleventy.config.js; colour is set here, not in the markup. */
+
+/* Each cell is a two-row block: the donut/numeral (or the CWV numeral) plus
+   the arrow + ⓘ on top, the sparkline on its own line beneath. Stacked
+   rather than one wide row so four sparklines don't push the 8-column table
+   past its container and force a horizontal scrollbar. A wrapper span, not
+   the <td> itself — a display:flex <td> stops being a table-cell and the
+   columns lose alignment. */
+.lh-cell-inner {
+	/* inline-flex, not flex: in the <640px card layout each <td> is display:
+	   block with a "Metric: " label from ::before, and this needs to sit
+	   after that label rather than forcing its own line. */
+	display: inline-flex;
+	vertical-align: middle;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.2rem;
+	/* Collapse the text items (numeral, arrow, ⓘ) to tight glyph boxes so
+	   `align-items: center` on the row lines their centres up with the donut
+	   rather than with a taller leading-padded line box. */
+	line-height: 1;
+}
+
+.lh-cell-row {
+	display: flex;
+	align-items: center;
+}
+
+/* The ring and the real numeral occupy one grid cell, stacked. The <td>
+   already carries lh-good/lh-average/lh-poor, so the arc's `currentColor`
+   is the tier colour for free; the numeral is pulled back to plain ink so
+   the colour isn't doubly encoded on a thin ring. */
+.lh-donut-wrap {
+	display: inline-grid;
+	place-items: center;
+}
+
+.lh-donut-wrap > * {
+	grid-area: 1 / 1;
+}
+
+/* Kept modest so a row of four donuts doesn't bloat the table's row height
+   much past the single-line numeral it replaces. */
+.lh-donut {
+	display: block;
+	width: 2em;
+	height: 2em;
+}
+
+.lh-donut-track {
+	stroke: var(--color-border);
+}
+
+.lh-donut-arc {
+	stroke: currentColor;
+}
+
+.lh-donut-num {
+	font-size: 0.8em;
+	line-height: 1;
+	color: var(--color-text);
+}
+
+/* Its own line under the top row, a fixed comfortable width. A muted single
+   stroke — context, not an alarm, so it deliberately does not take the tier
+   colour. `currentColor` (resolved from --color-muted here) means the line
+   survives forced-colors mode as CanvasText even though the ring's fill
+   proportion may not. */
+.lh-spark {
+	display: block;
+	width: 4em;
+	height: 1em;
+	color: var(--color-muted);
+}
+
+.lh-spark path {
+	stroke: currentColor;
+}
+
+.lh-spark circle {
+	fill: currentColor;
+}
+
 .lh-trend {
 	margin-left: 0.25rem;
 	font-family: var(--font-body);
@@ -763,6 +848,7 @@ button.lh-trend:focus-visible,
 	font-size: 0.8rem;
 }
 
+.lighthouse-legend-spark,
 .lighthouse-legend-trend,
 .lighthouse-legend-def {
 	display: block;
