@@ -1,6 +1,13 @@
 {
-	"capturedAt": "2026-09-11T09:29:38.358Z",
+	"capturedAt": "2026-09-12T09:09:57.383Z",
 	"activities": [
+		{
+			"type": "Run",
+			"name": "Recovery oven",
+			"distance": 8117.8,
+			"moving_time": 2293,
+			"start_date": "2026-09-11T13:05:51Z"
+		},
 		{
 			"type": "Run",
 			"name": "Post op hop",
@@ -28,13 +35,6 @@
 			"distance": 0,
 			"moving_time": 2645,
 			"start_date": "2026-08-17T23:53:51Z"
-		},
-		{
-			"type": "Run",
-			"name": "Afternoon Trail Run",
-			"distance": 9688.1,
-			"moving_time": 3348,
-			"start_date": "2026-08-15T21:33:12Z"
 		}
 	],
 	"stats": {
@@ -45,10 +45,10 @@
 			"elevation_gain": 0
 		},
 		"Run": {
-			"count": 3,
-			"distance": 25869.6,
-			"moving_time": 7940,
-			"elevation_gain": 385
+			"count": 4,
+			"distance": 33987.4,
+			"moving_time": 10233,
+			"elevation_gain": 467
 		}
 	}
 }
