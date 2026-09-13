@@ -130,11 +130,14 @@ export function donutSvg(score, level) {
 
 // The fixed vertical domain each metric's sparkline is drawn against —
 // anchored to the good/needs-improvement thresholds, NOT the data's own
-// min/max. Auto-fitting would make lab noise (Performance 100, 90, 100, 85,
-// 88 with no code change) fill the full height; a fixed domain keeps a noisy
-// run reading as a nearly flat line. See ADR 0006 / ADR 0009.
+// min/max. Auto-fitting would make lab noise (TBT swinging 0ms→509ms between
+// consecutive audits with no code change) fill the full height; a fixed
+// domain keeps a noisy run reading as a nearly flat line. See ADR 0006 /
+// ADR 0009. No `performance` entry — Performance's Score Donut already
+// carries its current value, and a sparkline underneath it read as
+// redundant (guntherjh/guntherjh.github.io#158); its cell is single-row
+// like the other category scores.
 const SPARK_DOMAIN = {
-	performance: [0, 100],
 	lcp: [0, 4000],
 	tbt: [0, 600],
 	cls: [0, 0.25],
@@ -144,7 +147,7 @@ const SPARK_DOMAIN = {
 // oldest run at the left, with a dot on the newest point. Points outside the
 // fixed domain clamp to the edge. Returns "" for fewer than two points
 // (nothing to trace — e.g. right after the first-ever audit) or a metric
-// with no domain (the category scores other than Performance don't get a
+// with no domain (none of the category scores, including Performance, get a
 // sparkline). Decorative: the tier arrow beside it carries the trend meaning
 // for assistive tech.
 export function sparklineSvg(values, metricKey) {

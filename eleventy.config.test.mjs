@@ -192,32 +192,38 @@ describe("sparklineSvg", () => {
 		[...svg.matchAll(/[ML]([\d.]+) ([\d.]+)/g)].map((m) => Number(m[2]));
 
 	it("returns nothing when there is fewer than one segment to draw", () => {
-		expect(sparklineSvg([], "performance")).toBe("");
-		expect(sparklineSvg([90], "performance")).toBe("");
+		expect(sparklineSvg([], "tbt")).toBe("");
+		expect(sparklineSvg([90], "tbt")).toBe("");
 	});
 
-	it("returns nothing for a metric with no fixed domain", () => {
+	it("returns nothing for a metric with no fixed domain, including every category score", () => {
 		expect(sparklineSvg([90, 100, 95], "accessibility")).toBe("");
+		// Performance keeps its Score Donut but deliberately has no
+		// sparkline — the donut already carries the current value
+		// (guntherjh/guntherjh.github.io#158).
+		expect(sparklineSvg([90, 100, 95], "performance")).toBe("");
 	});
 
 	it("plots one point per run, oldest to newest, decorative", () => {
-		const svg = sparklineSvg([90, 100, 85, 88], "performance");
+		const svg = sparklineSvg([90, 100, 85, 88], "tbt");
 		expect(svg).toContain('aria-hidden="true"');
 		expect((svg.match(/[ML][\d.]+ [\d.]+/g) || []).length).toBe(4);
 		expect(svg).toMatch(/^<svg[^>]*>\s*<path/);
 	});
 
 	it("marks the newest point with a dot", () => {
-		const svg = sparklineSvg([90, 100], "performance");
+		const svg = sparklineSvg([90, 100], "tbt");
 		expect(svg).toContain("<circle");
 	});
 
 	it("scales against the fixed per-metric domain, not the data range", () => {
-		// 90 and 100 against a 0–100 domain sit close together near the top of
-		// the plotted band — not spread across the full height the way an
-		// auto-fit scale (which would push 90 to the bottom) would place them.
-		const ys = yValues(sparklineSvg([90, 100], "performance"));
-		expect(Math.max(...ys)).toBeLessThan(5);
+		// TBT 0ms and 11ms are both "good" and sit close together near the
+		// bottom of the plotted band (low TBT is good) — not spread across
+		// the full height the way an auto-fit scale (min 0, max 11) would
+		// place them, which would make a real near-zero value and a tiny
+		// regression look like a dramatic swing.
+		const ys = yValues(sparklineSvg([0, 11], "tbt"));
+		expect(Math.min(...ys)).toBeGreaterThan(8);
 		expect(ys[0]).not.toEqual(ys[1]);
 	});
 

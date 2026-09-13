@@ -143,11 +143,14 @@ layout: layouts/base.njk
               label: metricNames[key], currentDisplay: value, currentLevel: level,
               previousDisplay: prevValue, previousLevel: prevLevel, previousDate: previousDate
             } | trendDetail %}
-            {# Score Donut on every category cell; Trend Sparkline only where
-               sparklineSvg() has a fixed domain (Performance among these —
-               it returns "" for the rest). Both are aria-hidden inline SVG:
-               the numeral stays real text and the tier arrow keeps carrying
-               the trend (guntherjh/guntherjh.github.io#151, ADR 0009). #}
+            {# Score Donut on every category cell; no Trend Sparkline on any
+               of them — sparklineSvg() has no fixed domain for a category
+               score and returns "" (Performance included, deliberately: its
+               donut already carries the current value, so a sparkline read
+               as redundant — guntherjh/guntherjh.github.io#158). The donut
+               is aria-hidden inline SVG; the numeral stays real text and the
+               tier arrow keeps carrying the trend
+               (guntherjh/guntherjh.github.io#151, ADR 0009). #}
             {% set spark = lighthouse.history | historyValues(label, key) | sparklineSvg(key) %}
             <td class="lh-cell lh-{{ level }}" data-label="{{ metricNames[key] }}"><span class="lh-cell-inner"><span class="lh-cell-row"><span class="lh-donut-wrap">{{ value | donutSvg(level) | safe }}<span class="lh-donut-num">{{ value }}</span></span>{{ trendMarker(change, label, metricNames[key], key, detail) }}{{ defTrigger(key, "cell") }}</span>{{ spark | safe }}</span></td>
             {% endfor %}
