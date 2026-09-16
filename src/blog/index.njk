@@ -2,6 +2,7 @@
 title: Blog
 layout: layouts/base.njk
 ---
+{% from "tag-list.njk" import tagList %}
 <h1>Blog</h1>
 
 {% if collections.posts.length %}
@@ -10,6 +11,7 @@ layout: layouts/base.njk
   <li>
     <a href="{{ post.url }}">{{ post.data.title }}</a>
     <time datetime="{{ post.date | isoDate }}">{{ post.date | readableDate }}</time>
+    {{ tagList(post.data.tags) }}
   </li>
   {% endfor %}
 </ul>

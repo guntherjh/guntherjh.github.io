@@ -1,0 +1,12 @@
+{#- Shared by layouts/post.njk and blog/index.njk (guntherjh/guntherjh.github.io#3)
+   so the tag-pill markup only has one place to change. #}
+{% macro tagList(tags) %}
+{% set topics = tags | postTopics %}
+{% if topics.length %}
+<ul class="post-tags">
+  {% for topic in topics %}
+  <li><a href="/blog/tags/{{ topic | slugify }}/">{{ topic }}</a></li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endmacro %}
