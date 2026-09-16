@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+	collectTags,
 	donutSvg,
 	historyValues,
 	metricLevel,
+	postTopics,
 	scoreLevel,
 	sparklineSvg,
 	trend,
@@ -241,6 +243,57 @@ describe("sparklineSvg", () => {
 	it("draws a flat line when every run has the same value (e.g. CLS 0)", () => {
 		const ys = yValues(sparklineSvg([0, 0, 0, 0], "cls"));
 		expect(new Set(ys).size).toBe(1);
+	});
+});
+
+describe("postTopics", () => {
+	it("drops the reserved posts collection tag, keeping topical tags", () => {
+		expect(postTopics(["posts", "til", "eleventy"])).toEqual([
+			"til",
+			"eleventy",
+		]);
+	});
+
+	it("returns an empty array for a post with no tags", () => {
+		expect(postTopics(undefined)).toEqual([]);
+		expect(postTopics([])).toEqual([]);
+	});
+
+	it("returns an empty array for a post tagged only with the reserved tag", () => {
+		expect(postTopics(["posts"])).toEqual([]);
+	});
+
+	it("lowercases tags so differently-cased spellings share one canonical form", () => {
+		expect(postTopics(["posts", "TIL", "Eleventy"])).toEqual([
+			"til",
+			"eleventy",
+		]);
+	});
+});
+
+describe("collectTags", () => {
+	it("dedupes and sorts topical tags across posts, excluding the reserved tag", () => {
+		const posts = [
+			{ data: { tags: ["posts", "eleventy"] } },
+			{ data: { tags: ["posts", "til", "eleventy"] } },
+		];
+		expect(collectTags(posts)).toEqual(["eleventy", "til"]);
+	});
+
+	it("returns an empty array when no post carries a topical tag", () => {
+		expect(collectTags([{ data: { tags: ["posts"] } }])).toEqual([]);
+	});
+
+	it("skips posts with no tags data", () => {
+		expect(collectTags([{ data: {} }])).toEqual([]);
+	});
+
+	it("dedupes tags that only differ by case, so they don't collide at the same slugified URL", () => {
+		const posts = [
+			{ data: { tags: ["posts", "TIL"] } },
+			{ data: { tags: ["posts", "til"] } },
+		];
+		expect(collectTags(posts)).toEqual(["til"]);
 	});
 });
 

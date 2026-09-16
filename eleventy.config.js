@@ -206,6 +206,38 @@ export function historyValues(history, label, key) {
 		.filter((value) => value !== null);
 }
 
+// Blog tags (guntherjh/guntherjh.github.io#3): posts.json's directory data
+// applies the "posts" collection tag to every post (see ADR 0002); a post's
+// own `tags` front matter concats onto that via Eleventy's default deep
+// data-merge (dataDeepMerge, on by default — concatenates array-valued
+// front matter keys across the cascade, not just `tags` specially), so a
+// post ends up in collections.posts AND collections.<eachTag> with no
+// config needed for the merge itself. "posts" itself isn't a topic a reader
+// would browse by, so it's filtered out everywhere topical tags are shown.
+const RESERVED_TAGS = new Set(["posts"]);
+
+// Lowercased so a tag's display form, its /blog/tags/<slug>/ URL, and its
+// membership check against collections.tagList all agree on one canonical
+// spelling — without it, "TIL" and "til" would slugify to the same URL and
+// one tag's page would silently overwrite the other's during the build.
+export function postTopics(tags) {
+	if (!Array.isArray(tags)) return [];
+	return tags
+		.filter((tag) => !RESERVED_TAGS.has(tag))
+		.map((tag) => tag.toLowerCase());
+}
+
+// Feeds the tag-listing pagination (src/blog/tags/tags.njk): every topical
+// tag used by at least one post, deduplicated and sorted so the generated
+// page set (and its order wherever it's enumerated) is stable across builds.
+export function collectTags(posts) {
+	const tags = new Set();
+	for (const post of posts) {
+		for (const tag of postTopics(post?.data?.tags)) tags.add(tag);
+	}
+	return [...tags].sort();
+}
+
 export default function (eleventyConfig) {
 	eleventyConfig.addPlugin(pluginRss);
 
@@ -288,6 +320,12 @@ export default function (eleventyConfig) {
 	eleventyConfig.addFilter("donutSvg", donutSvg);
 	eleventyConfig.addFilter("sparklineSvg", sparklineSvg);
 	eleventyConfig.addFilter("historyValues", historyValues);
+
+	// Blog tags (guntherjh/guntherjh.github.io#3) — pure functions above.
+	eleventyConfig.addFilter("postTopics", postTopics);
+	eleventyConfig.addCollection("tagList", (collectionApi) =>
+		collectTags(collectionApi.getFilteredByTag("posts")),
+	);
 
 	return {
 		dir: {
