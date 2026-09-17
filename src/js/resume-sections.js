@@ -1,5 +1,5 @@
-// Persists which Resume page sections (Work Experience / Education /
-// Skills / Contact) are collapsed across page loads via localStorage.
+// Persists which Resume page sections (Work Experience / Skills /
+// Education / Contact) are collapsed across page loads via localStorage.
 // Native vanilla JS, no dependency — per CODING_STANDARDS.md, this is
 // JS used only because native <details> has no cross-page-load
 // persistence mechanism of its own. Same pattern as

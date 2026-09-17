@@ -422,6 +422,35 @@ h4 {
 	margin-top: -0.5rem;
 }
 
+/* Decorative icons on the Resume page (job entries, skill categories,
+   Education, Contact links — guntherjh/guntherjh.github.io#75), set by
+   the resumeIcon() macro in resume.njk. stroke is currentColor (the
+   lucide shortcode's own default), so icons already track each theme's
+   text color with no separate light/dark rule needed.
+
+   This class sits next to text at several different font sizes on this
+   page (.job h3 at the UA-default h3 size, .skill-group h3 forced to
+   1rem, and the Education/Contact body text at the page's 0.95rem base)
+   — em units here, not the resumeIcon() macro's px attributes (CSS
+   overrides SVG presentation attributes), let width/vertical-align/gap
+   all scale together with whichever context the icon lands in, instead
+   of one fixed offset that could only ever be correct for one of them.
+
+   Default inline baseline alignment sits the icon too high against the
+   surrounding text (a ~1.1em-tall box has more height above the
+   baseline than a line of text does); a negative vertical-align lowers
+   it to sit centered instead — the CSS property's own name is the
+   opposite of what it does here. margin-right is the only source of the
+   icon-to-text gap — the resumeIcon() macro's output butts directly
+   against the following word with no literal space in the template, so
+   this value alone controls it. */
+.resume-icon {
+	width: 1.125em;
+	height: 1.125em;
+	vertical-align: -0.15em;
+	margin-right: 0.35em;
+}
+
 .job {
 	margin-bottom: 0.75rem;
 }

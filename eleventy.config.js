@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import pluginRss from "@11ty/eleventy-plugin-rss";
+import lucideIcons from "@grimlink/eleventy-plugin-lucide-icons";
 
 // Lighthouse widget color-coding/trend (guntherjh/guntherjh.github.io#71):
 // pure functions, exported alongside the default Eleventy config so they're
@@ -240,6 +241,20 @@ export function collectTags(posts) {
 
 export default function (eleventyConfig) {
 	eleventyConfig.addPlugin(pluginRss);
+
+	// Icon shortcode (guntherjh/guntherjh.github.io#75): build-time-only —
+	// {% lucide %} inlines static SVG into the rendered HTML, so no icon
+	// library ships to visitors as client-side JS. Registered with no
+	// options here deliberately: `aria-hidden`/sizing/class are
+	// decorative-use opinions specific to how the Resume page happens to
+	// use icons today, not a site-wide default. Baking them in here would
+	// mean a future {% lucide %} call on some other page — one that isn't
+	// purely decorative, e.g. an icon with no adjacent text carrying the
+	// same meaning — silently inherits `aria-hidden="true"` and is
+	// invisible to screen readers unless the caller remembers to override
+	// it. Resume-specific styling instead lives in the resumeIcon() macro
+	// in resume.njk, scoped to where it's actually used.
+	eleventyConfig.addPlugin(lucideIcons);
 
 	eleventyConfig.addPassthroughCopy("src/css");
 	eleventyConfig.addPassthroughCopy("src/js");
