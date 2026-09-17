@@ -242,25 +242,19 @@ export function collectTags(posts) {
 export default function (eleventyConfig) {
 	eleventyConfig.addPlugin(pluginRss);
 
-	// Resume page decorative icons (guntherjh/guntherjh.github.io#75):
-	// build-time-only — the {% lucide %} shortcode below inlines static SVG
-	// into the rendered HTML, so no icon library ships to visitors as
-	// client-side JS. `aria-hidden` is set globally since every *current*
-	// use sits next to text that already conveys the same information
-	// (job title, skill category, contact method) — the icon is
-	// decoration, not additional content, same rationale as the
-	// Lighthouse widget's donut/sparkline SVGs. This default applies
-	// site-wide, not just on the Resume page: a future {% lucide %} call
-	// anywhere that isn't purely decorative (no adjacent text carrying the
-	// same meaning) MUST override it per call, e.g.
-	// {% lucide "alert-triangle", { "aria-hidden": "false" } %} — otherwise
-	// it's invisible to screen readers by default.
-	eleventyConfig.addPlugin(lucideIcons, {
-		width: 18,
-		height: 18,
-		class: "resume-icon",
-		"aria-hidden": "true",
-	});
+	// Icon shortcode (guntherjh/guntherjh.github.io#75): build-time-only —
+	// {% lucide %} inlines static SVG into the rendered HTML, so no icon
+	// library ships to visitors as client-side JS. Registered with no
+	// options here deliberately: `aria-hidden`/sizing/class are
+	// decorative-use opinions specific to how the Resume page happens to
+	// use icons today, not a site-wide default. Baking them in here would
+	// mean a future {% lucide %} call on some other page — one that isn't
+	// purely decorative, e.g. an icon with no adjacent text carrying the
+	// same meaning — silently inherits `aria-hidden="true"` and is
+	// invisible to screen readers unless the caller remembers to override
+	// it. Resume-specific styling instead lives in the resumeIcon() macro
+	// in resume.njk, scoped to where it's actually used.
+	eleventyConfig.addPlugin(lucideIcons);
 
 	eleventyConfig.addPassthroughCopy("src/css");
 	eleventyConfig.addPassthroughCopy("src/js");
