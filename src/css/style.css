@@ -422,6 +422,18 @@ h4 {
 	margin-top: -0.5rem;
 }
 
+/* Decorative icons on the Resume page (job entries, skill categories,
+   Education, Contact links — guntherjh/guntherjh.github.io#75). stroke is
+   currentColor (set by the {% lucide %} shortcode's global options in
+   eleventy.config.js), so icons already track each theme's text color
+   with no separate light/dark rule needed. vertical-align nudges the
+   icon up from its default inline baseline to sit centered against the
+   adjacent text. */
+.resume-icon {
+	vertical-align: -3px;
+	margin-right: 0.35rem;
+}
+
 .job {
 	margin-bottom: 0.75rem;
 }
