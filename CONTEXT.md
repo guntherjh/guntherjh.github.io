@@ -21,7 +21,7 @@ The About page's subsection describing the site itself — what it's built with 
 _Avoid_: Colophon, meta section
 
 **Resume**:
-Its own top-level Page (not an About subsection) covering career history: Work Experience, Education, Skills, and Contact. Linked from the nav and from a short pointer on the About page.
+Its own top-level Page (not an About subsection) covering career history: Work Experience, Skills, Education, and Contact. Linked from the nav and from a short pointer on the About page.
 _Avoid_: CV, About's Resume subsection (retired — Resume is no longer nested under About)
 
 **Lighthouse Widget**:
