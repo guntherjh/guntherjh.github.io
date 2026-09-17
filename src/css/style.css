@@ -875,14 +875,13 @@ button.lh-trend:focus-visible,
 
 .lighthouse-legend {
 	margin-top: 0.5rem;
+	padding: 0;
+	list-style: none;
 	color: var(--color-muted);
 	font-size: 0.8rem;
 }
 
-.lighthouse-legend-spark,
-.lighthouse-legend-trend,
-.lighthouse-legend-def {
-	display: block;
+.lighthouse-legend li + li {
 	margin-top: 0.25rem;
 }
 
