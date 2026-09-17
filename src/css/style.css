@@ -426,9 +426,14 @@ h4 {
    Education, Contact links — guntherjh/guntherjh.github.io#75). stroke is
    currentColor (set by the {% lucide %} shortcode's global options in
    eleventy.config.js), so icons already track each theme's text color
-   with no separate light/dark rule needed. vertical-align nudges the
-   icon up from its default inline baseline to sit centered against the
-   adjacent text. */
+   with no separate light/dark rule needed. Default inline baseline
+   alignment sits the icon too high against the surrounding text (an
+   18px box has more height above the baseline than a line of text
+   does); a negative vertical-align lowers it to sit centered instead —
+   the CSS property's own name is the opposite of what it does here.
+   margin-right is the only source of the icon-to-text gap — the
+   template's {% lucide %} calls butt directly against the following
+   word with no literal space, so this value alone controls it. */
 .resume-icon {
 	vertical-align: -3px;
 	margin-right: 0.35rem;

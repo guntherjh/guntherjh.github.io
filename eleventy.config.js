@@ -245,11 +245,16 @@ export default function (eleventyConfig) {
 	// Resume page decorative icons (guntherjh/guntherjh.github.io#75):
 	// build-time-only — the {% lucide %} shortcode below inlines static SVG
 	// into the rendered HTML, so no icon library ships to visitors as
-	// client-side JS. `aria-hidden` is set globally since every use on the
-	// Resume page sits next to text that already conveys the same
-	// information (job title, skill category, contact method) — the icon
-	// is decoration, not additional content, same rationale as the
-	// Lighthouse widget's donut/sparkline SVGs.
+	// client-side JS. `aria-hidden` is set globally since every *current*
+	// use sits next to text that already conveys the same information
+	// (job title, skill category, contact method) — the icon is
+	// decoration, not additional content, same rationale as the
+	// Lighthouse widget's donut/sparkline SVGs. This default applies
+	// site-wide, not just on the Resume page: a future {% lucide %} call
+	// anywhere that isn't purely decorative (no adjacent text carrying the
+	// same meaning) MUST override it per call, e.g.
+	// {% lucide "alert-triangle", { "aria-hidden": "false" } %} — otherwise
+	// it's invisible to screen readers by default.
 	eleventyConfig.addPlugin(lucideIcons, {
 		width: 18,
 		height: 18,
