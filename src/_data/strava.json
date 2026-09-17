@@ -1,6 +1,13 @@
 {
-	"capturedAt": "2026-09-16T09:48:33.130Z",
+	"capturedAt": "2026-09-17T09:55:32.186Z",
 	"activities": [
+		{
+			"type": "Run",
+			"name": "Daycare",
+			"distance": 11718.7,
+			"moving_time": 3246,
+			"start_date": "2026-09-16T12:49:16Z"
+		},
 		{
 			"type": "Run",
 			"name": "End of leave",
@@ -28,21 +35,14 @@
 			"distance": 8057.2,
 			"moving_time": 2246,
 			"start_date": "2026-08-19T00:14:15Z"
-		},
-		{
-			"type": "Walk",
-			"name": "Morning Walk",
-			"distance": 1976.9,
-			"moving_time": 1199,
-			"start_date": "2026-08-18T12:47:40Z"
 		}
 	],
 	"stats": {
 		"Run": {
-			"count": 3,
-			"distance": 24329.7,
-			"moving_time": 6935,
-			"elevation_gain": 254
+			"count": 4,
+			"distance": 36048.4,
+			"moving_time": 10181,
+			"elevation_gain": 380
 		}
 	}
 }
