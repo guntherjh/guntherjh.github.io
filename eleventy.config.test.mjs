@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	activityTypeLabel,
 	collectTags,
 	donutSvg,
 	historyValues,
@@ -42,6 +43,21 @@ describe("paceMinPerMile", () => {
 		// 2 miles in 239s of moving time = 119.5s/mile, which rounds to
 		// exactly 120s/mile — 2:00, not 1:60.
 		expect(paceMinPerMile(1609.34 * 2, 239)).toBe("2:00");
+	});
+});
+
+describe("activityTypeLabel", () => {
+	it("labels a Run with sport_type Run as a Road Run", () => {
+		expect(activityTypeLabel("Run", "Run")).toBe("Road Run");
+	});
+
+	it("labels a Run with sport_type TrailRun as a Trail Run", () => {
+		expect(activityTypeLabel("Run", "TrailRun")).toBe("Trail Run");
+	});
+
+	it("passes non-Run activity types through unchanged", () => {
+		expect(activityTypeLabel("Ride", "Ride")).toBe("Ride");
+		expect(activityTypeLabel("Swim", "Swim")).toBe("Swim");
 	});
 });
 

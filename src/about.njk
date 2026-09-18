@@ -31,20 +31,39 @@ layout: layouts/base.njk
           Below you can find data about my most recent runs:
       </p>
       <h4>Recent Activities</h4>
-      <ul class="strava-activities">
-          {% for activity in strava.activities %}
-          <li>
-              <strong>{{ "Trail Run" if activity.sport_type == "TrailRun" else activity.type }}</strong> — {{ activity.name }} —
-              {{ activity.distance | metersToMiles | round(1) }} mi,
-              {{ (activity.moving_time / 60) | round }} min,
-              {{ activity.distance | paceMinPerMile(activity.moving_time) }} /mi,
-              {{ (activity.elevation_gain or 0) | metersToFeet | round }} ft gain
-              — <time datetime="{{ activity.start_date }}">
-                  {{ activity.start_date | readableDate }}
-              </time>
-          </li>
-          {% endfor %}
-    </ul>
+      {# A compact table, not a prose list — six columns of genuinely
+         tabular data (guntherjh/guntherjh.github.io#70), same reasoning
+         as the Lighthouse widget's table (guntherjh/guntherjh.github.io#41).
+         Only the table scrolls sideways on a narrow screen, same pattern as
+         the Lighthouse widget (guntherjh/guntherjh.github.io#124) — a full
+         stacked-card reflow wasn't judged worth it for a single-line-per-row
+         table this narrow. #}
+      <div class="strava-activities-scroll">
+          <table>
+              <thead>
+                  <tr>
+                      <th scope="col">Type</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Distance</th>
+                      <th scope="col">Pace</th>
+                      <th scope="col">Elevation</th>
+                      <th scope="col">Date</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for activity in strava.activities %}
+                  <tr>
+                      <td>{{ activity.type | activityTypeLabel(activity.sport_type) }}</td>
+                      <td>{{ activity.name }}</td>
+                      <td>{{ activity.distance | metersToMiles | round(1) }} mi</td>
+                      <td>{{ activity.distance | paceMinPerMile(activity.moving_time) }} /mi</td>
+                      <td>{{ (activity.elevation_gain or 0) | metersToFeet | round }} ft</td>
+                      <td><time datetime="{{ activity.start_date }}">{{ activity.start_date | readableDate }}</time></td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+      </div>
     <h4>
         Recent Stats <span class="strava-stats-window">(last 4 weeks)</span>
     </h4>
