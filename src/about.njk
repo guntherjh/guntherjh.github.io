@@ -95,7 +95,13 @@ layout: layouts/base.njk
        length` rather than a bare truthiness check — buildRunBreakdown
        returns `{}` (truthy) during a running-free window, and a bare
        {% if strava.runBreakdown %} would render this heading with an
-       empty list beneath it. #}
+       empty list beneath it. Each bucket's `gear` (guntherjh/guntherjh.github.io#188)
+       is the most recent Activity in that bucket with a resolvable
+       gear_id — omitted by buildRunBreakdown, not just blank, when
+       nothing in the bucket resolves (e.g. gear never tagged, or the
+       Refresh Job's token predates the profile:read_all scope gear
+       needs), so the `if totals.gear` guard below is load-bearing, not
+       redundant. #}
     <h4>
         Run Breakdown <span class="strava-stats-window">(last 4 weeks)</span>
     </h4>
@@ -105,6 +111,7 @@ layout: layouts/base.njk
             <strong>{{ label }}</strong>:
             {{ (totals.distance / totals.count) | metersToMiles | round(1) }} mi avg,
             {{ totals.distance | paceMinPerMile(totals.moving_time) }} /mi avg
+            {%- if totals.gear %}, current gear: {{ totals.gear }}{% endif %}
         </li>
         {% endfor %}
     </ul>
