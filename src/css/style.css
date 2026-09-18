@@ -605,14 +605,16 @@ time {
 }
 
 .strava-activities,
-.strava-stats {
+.strava-stats,
+.strava-run-breakdown {
 	list-style: none;
 	padding: 0;
 	margin: 0;
 }
 
 .strava-activities li,
-.strava-stats li {
+.strava-stats li,
+.strava-run-breakdown li {
 	padding: 0.35rem 0;
 	border-bottom: 1px solid var(--color-border);
 	font-size: 0.9rem;

@@ -34,9 +34,11 @@ layout: layouts/base.njk
       <ul class="strava-activities">
           {% for activity in strava.activities %}
           <li>
-              <strong>{{ activity.type }}</strong> — {{ activity.name }} —
+              <strong>{{ "Trail Run" if activity.sport_type == "TrailRun" else activity.type }}</strong> — {{ activity.name }} —
               {{ activity.distance | metersToMiles | round(1) }} mi,
-              {{ (activity.moving_time / 60) | round }} min
+              {{ (activity.moving_time / 60) | round }} min,
+              {{ activity.distance | paceMinPerMile(activity.moving_time) }} /mi,
+              {{ (activity.elevation_gain or 0) | metersToFeet | round }} ft gain
               — <time datetime="{{ activity.start_date }}">
                   {{ activity.start_date | readableDate }}
               </time>
@@ -55,6 +57,23 @@ layout: layouts/base.njk
         </li>
       {% endfor %}
     </ul>
+    {% if strava.runBreakdown %}
+    {# Run Breakdown (see CONTEXT.md): Road Run vs. Trail Run average
+       mileage/pace, computed by the Refresh Job from Activities directly
+       since Strava's own Stats endpoint has no Trail Run/Run split. #}
+    <h4>
+        Run Breakdown <span class="strava-stats-window">(last 4 weeks)</span>
+    </h4>
+    <ul class="strava-run-breakdown">
+        {% for label, totals in strava.runBreakdown %}
+        <li>
+            <strong>{{ label }}</strong>:
+            {{ (totals.distance / totals.count) | metersToMiles | round(1) }} mi avg,
+            {{ totals.distance | paceMinPerMile(totals.moving_time) }} /mi avg
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
         <p class="strava-updated">
             Last updated {{ strava.capturedAt | readableDate }}
         </p>

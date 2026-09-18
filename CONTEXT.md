@@ -45,11 +45,11 @@ A single Lighthouse run against one URL, producing the four category scores plus
 _Avoid_: report, scan
 
 **Strava Widget**:
-The About page component rendering the Strava Snapshot — the last 5 Activities and per-sport recent Stats. A custom-built component consuming fetched data (not Strava's own embed — that route was tried and found non-functional, see [Strava Widget: data spec #24](https://github.com/guntherjh/guntherjh.github.io/issues/24) Decisions so far).
+The About page component rendering the Strava Snapshot — the last 5 Activities (with pace and elevation gain), per-sport recent Stats, and the Run Breakdown. A custom-built component consuming fetched data (not Strava's own embed — that route was tried and found non-functional, see [Strava Widget: data spec #24](https://github.com/guntherjh/guntherjh.github.io/issues/24) Decisions so far).
 _Avoid_: badge, embed
 
 **Strava Snapshot**:
-The data artifact (`src/_data/strava.json`) the Strava Widget renders — the last 5 Activities plus per-sport recent (last 4 weeks) Stats, produced by the Refresh Job and committed to `master`. Staleness on a failed run is acceptable — the previous Snapshot stays in place rather than breaking the build. Freshness is tied to a daily schedule, not merge activity (contrast with the Lighthouse Snapshot).
+The data artifact (`src/_data/strava.json`) the Strava Widget renders — the last 5 Activities, per-sport recent (last 4 weeks) Stats, and the Run Breakdown, produced by the Refresh Job and committed to `master`. Staleness on a failed run is acceptable — the previous Snapshot stays in place rather than breaking the build. Freshness is tied to a daily schedule, not merge activity (contrast with the Lighthouse Snapshot).
 _Avoid_: results, report
 
 **Refresh Job**:
@@ -61,8 +61,12 @@ A single logged Strava workout of any type (run, ride, swim, etc.). Only public 
 _Avoid_: workout, entry
 
 **Stats** (Strava's own term, short for "athlete stats"):
-Aggregate per-sport totals (count, distance, moving time, elevation gain) over Strava's "recent" (last 4 weeks) window — not a single blended total across sport types, and not year-to-date or all-time.
+Aggregate per-sport totals (count, distance, moving time, elevation gain) over Strava's "recent" (last 4 weeks) window — not a single blended total across sport types, and not year-to-date or all-time. Sourced directly from Strava's own recent-totals API and bucketed only by sport (Ride/Run/Swim) — contrast with the Run Breakdown, which further splits Run by Strava's `sport_type` field.
 _Avoid_: totals, summary
+
+**Run Breakdown**:
+The Strava Widget's split of Runs into Road Run and Trail Run — average mileage and average pace for each, over the same last-4-weeks window as Stats (guntherjh/guntherjh.github.io#70). Unlike Stats, this isn't sourced from Strava's own aggregate API — that endpoint has no notion of Trail Run vs. Run — so it's computed by the Refresh Job from the window's individual Activities, bucketed by Strava's `sport_type` field ("TrailRun" vs. plain "Run"). Omits a bucket entirely when no Activity of that kind falls in the window, rather than showing a zero.
+_Avoid_: run stats, trail stats
 
 **Progressive Web App (PWA)**:
 The site's installable, offline-capable mode — a web app manifest (`src/manifest.webmanifest`), a service worker (`src/sw.js`), and SVG/PNG icons — that lets a browser install the site as a standalone app (guntherjh/guntherjh.github.io#5). Offline behavior is spelled out in `CODING_STANDARDS.md`; this term names the umbrella concept.

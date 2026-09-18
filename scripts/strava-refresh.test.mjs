@@ -19,8 +19,11 @@ const {
 	fetchJson,
 	refreshAccessToken,
 	updateRefreshTokenSecret,
+	computeAfterEpochSeconds,
+	fetchRecentActivities,
 	buildActivities,
 	buildStats,
+	buildRunBreakdown,
 	refreshStravaData,
 } = await import("./strava-refresh.mjs");
 
@@ -174,6 +177,59 @@ describe("Strava refresh", () => {
 		});
 	});
 
+	describe("computeAfterEpochSeconds", () => {
+		it("returns the Unix epoch seconds for 28 days before `now`", () => {
+			const now = new Date("2026-01-29T00:00:00Z");
+
+			expect(computeAfterEpochSeconds(now)).toBe(
+				new Date("2026-01-01T00:00:00Z").getTime() / 1000,
+			);
+		});
+	});
+
+	describe("fetchRecentActivities", () => {
+		it("requests the given access token, after-epoch, and page 1 with a 200 page size", async () => {
+			const fetchMock = vi.fn().mockResolvedValue(jsonResponse([]));
+			vi.stubGlobal("fetch", fetchMock);
+
+			await fetchRecentActivities("abc123", 1700000000);
+
+			expect(fetchMock).toHaveBeenCalledWith(
+				"https://www.strava.com/api/v3/athlete/activities?after=1700000000&per_page=200&page=1",
+				{ headers: { Authorization: "Bearer abc123" } },
+			);
+		});
+
+		it("stops after a page shorter than the page size", async () => {
+			const fetchMock = vi
+				.fn()
+				.mockResolvedValue(jsonResponse([{ id: 1 }, { id: 2 }]));
+			vi.stubGlobal("fetch", fetchMock);
+
+			const activities = await fetchRecentActivities("abc123", 1700000000);
+
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+			expect(activities).toEqual([{ id: 1 }, { id: 2 }]);
+		});
+
+		it("requests subsequent pages until a short page is returned", async () => {
+			const fullPage = Array.from({ length: 200 }, (_, i) => ({ id: i }));
+			const fetchMock = vi
+				.fn()
+				.mockResolvedValueOnce(jsonResponse(fullPage))
+				.mockResolvedValueOnce(jsonResponse([{ id: 200 }]));
+			vi.stubGlobal("fetch", fetchMock);
+
+			const activities = await fetchRecentActivities("abc123", 1700000000);
+
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+			expect(fetchMock.mock.calls[1][0]).toBe(
+				"https://www.strava.com/api/v3/athlete/activities?after=1700000000&per_page=200&page=2",
+			);
+			expect(activities).toHaveLength(201);
+		});
+	});
+
 	describe("buildActivities", () => {
 		it("filters out private activities", () => {
 			const activities = buildActivities([
@@ -201,9 +257,11 @@ describe("Strava refresh", () => {
 				{
 					private: false,
 					type: "Run",
+					sport_type: "TrailRun",
 					name: "Morning run",
 					distance: 5000,
 					moving_time: 1800,
+					total_elevation_gain: 120,
 					start_date: "2026-01-01T00:00:00Z",
 					extra: "should be dropped",
 				},
@@ -212,12 +270,82 @@ describe("Strava refresh", () => {
 			expect(activities).toEqual([
 				{
 					type: "Run",
+					sport_type: "TrailRun",
 					name: "Morning run",
 					distance: 5000,
 					moving_time: 1800,
+					elevation_gain: 120,
 					start_date: "2026-01-01T00:00:00Z",
 				},
 			]);
+		});
+	});
+
+	describe("buildRunBreakdown", () => {
+		it("buckets Runs by sport_type into Road Run and Trail Run totals", () => {
+			const breakdown = buildRunBreakdown([
+				{
+					private: false,
+					type: "Run",
+					sport_type: "Run",
+					distance: 5000,
+					moving_time: 1800,
+				},
+				{
+					private: false,
+					type: "Run",
+					sport_type: "Run",
+					distance: 3000,
+					moving_time: 1200,
+				},
+				{
+					private: false,
+					type: "Run",
+					sport_type: "TrailRun",
+					distance: 8000,
+					moving_time: 3600,
+				},
+			]);
+
+			expect(breakdown).toEqual({
+				"Road Run": { count: 2, distance: 8000, moving_time: 3000 },
+				"Trail Run": { count: 1, distance: 8000, moving_time: 3600 },
+			});
+		});
+
+		it("excludes private activities and non-Run activity types", () => {
+			const breakdown = buildRunBreakdown([
+				{
+					private: true,
+					type: "Run",
+					sport_type: "Run",
+					distance: 5000,
+					moving_time: 1800,
+				},
+				{
+					private: false,
+					type: "Ride",
+					sport_type: "Ride",
+					distance: 20000,
+					moving_time: 3600,
+				},
+			]);
+
+			expect(breakdown).toEqual({});
+		});
+
+		it("omits a bucket with no matching activities", () => {
+			const breakdown = buildRunBreakdown([
+				{
+					private: false,
+					type: "Run",
+					sport_type: "Run",
+					distance: 5000,
+					moving_time: 1800,
+				},
+			]);
+
+			expect(Object.keys(breakdown)).toEqual(["Road Run"]);
 		});
 	});
 
@@ -270,52 +398,69 @@ describe("Strava refresh", () => {
 		function mockSuccessfulFetches({
 			refreshToken = "test-refresh-token",
 		} = {}) {
-			vi.stubGlobal(
-				"fetch",
-				vi.fn((url) => {
-					if (url === "https://www.strava.com/oauth/token") {
-						return Promise.resolve(
-							jsonResponse({
-								access_token: "access-token",
-								refresh_token: refreshToken,
-							}),
-						);
-					}
-					if (url === "https://www.strava.com/api/v3/athlete") {
-						return Promise.resolve(jsonResponse({ id: 42 }));
-					}
-					if (
-						url.startsWith("https://www.strava.com/api/v3/athlete/activities")
-					) {
-						return Promise.resolve(
-							jsonResponse([
-								{
-									private: false,
-									type: "Run",
-									name: "Morning run",
-									distance: 5000,
-									moving_time: 1800,
-									start_date: "2026-01-01T00:00:00Z",
-								},
-							]),
-						);
-					}
-					if (url === "https://www.strava.com/api/v3/athletes/42/stats") {
-						return Promise.resolve(
-							jsonResponse({
-								recent_run_totals: {
-									count: 1,
-									distance: 5000,
-									moving_time: 1800,
-									elevation_gain: 10,
-								},
-							}),
-						);
-					}
-					throw new Error(`Unexpected fetch: ${url}`);
-				}),
-			);
+			const fetchMock = vi.fn((url) => {
+				if (url === "https://www.strava.com/oauth/token") {
+					return Promise.resolve(
+						jsonResponse({
+							access_token: "access-token",
+							refresh_token: refreshToken,
+						}),
+					);
+				}
+				if (url === "https://www.strava.com/api/v3/athlete") {
+					return Promise.resolve(jsonResponse({ id: 42 }));
+				}
+				if (
+					url.startsWith("https://www.strava.com/api/v3/athlete/activities")
+				) {
+					return Promise.resolve(
+						jsonResponse([
+							{
+								private: false,
+								type: "Run",
+								sport_type: "Run",
+								name: "Morning run",
+								distance: 5000,
+								moving_time: 1800,
+								total_elevation_gain: 10,
+								start_date: "2026-01-01T00:00:00Z",
+							},
+						]),
+					);
+				}
+				if (url === "https://www.strava.com/api/v3/athletes/42/stats") {
+					return Promise.resolve(
+						jsonResponse({
+							recent_run_totals: {
+								count: 1,
+								distance: 5000,
+								moving_time: 1800,
+								elevation_gain: 10,
+							},
+						}),
+					);
+				}
+				throw new Error(`Unexpected fetch: ${url}`);
+			});
+			vi.stubGlobal("fetch", fetchMock);
+			return fetchMock;
 		}
+
+		it("fetches the Activities list by flat count and the Run Breakdown's window separately", async () => {
+			const fetchMock = mockSuccessfulFetches();
+
+			await refreshStravaData();
+
+			const activityUrls = fetchMock.mock.calls
+				.map(([url]) => url)
+				.filter((url) =>
+					url.startsWith("https://www.strava.com/api/v3/athlete/activities"),
+				);
+			expect(activityUrls).toContain(
+				"https://www.strava.com/api/v3/athlete/activities?per_page=30",
+			);
+			expect(activityUrls.some((url) => url.includes("after="))).toBe(true);
+		});
 
 		it("writes a Snapshot built from the refreshed token, activities, and stats", async () => {
 			mockSuccessfulFetches();
@@ -330,9 +475,11 @@ describe("Strava refresh", () => {
 			expect(snapshot.activities).toEqual([
 				{
 					type: "Run",
+					sport_type: "Run",
 					name: "Morning run",
 					distance: 5000,
 					moving_time: 1800,
+					elevation_gain: 10,
 					start_date: "2026-01-01T00:00:00Z",
 				},
 			]);
@@ -343,6 +490,9 @@ describe("Strava refresh", () => {
 					moving_time: 1800,
 					elevation_gain: 10,
 				},
+			});
+			expect(snapshot.runBreakdown).toEqual({
+				"Road Run": { count: 1, distance: 5000, moving_time: 1800 },
 			});
 			expect(formatWithBiome).toHaveBeenCalledWith(outputPath);
 		});
