@@ -132,10 +132,24 @@ layout: layouts/base.njk
   <div class="lighthouse-widget">
     {# Only the table scrolls sideways on a narrow screen (see #41); the
        legend and definition panels below stay outside the scroll wrapper so
-       a horizontal scrollbar can't drag a vertical one in with it (#124). #}
-    <div class="lighthouse-table-scroll">
+       a horizontal scrollbar can't drag a vertical one in with it (#124).
+       role + aria-labelledby (pointing at the table's own <caption> rather
+       than a separate static label) give the scrolling region an
+       accessible name — WCAG 1.4.10 (Reflow) exempts genuinely two-
+       dimensional data like a table from its no-horizontal-scrolling rule,
+       but only once the scroll mechanism itself is operable (WCAG 2.1.1,
+       #184). The .scroll-region marker gets its tabindex from
+       /js/scroll-region.js, not a static attribute here — this table
+       reflows to non-scrolling stacked cards below 640px (see the media
+       query below), and a tabindex="0" that's always present would be a
+       dead tab stop there once nothing overflows to scroll to. #}
+    <div
+        class="lighthouse-table-scroll scroll-region"
+        role="region"
+        aria-labelledby="lh-table-caption"
+    >
       <table>
-        <caption>
+        <caption id="lh-table-caption">
           Lighthouse scores, last measured {{ latest.capturedAt | readableDate }}
           {%- if previous %}
           — trend vs. previous audit ({{ previousDate }})
@@ -222,3 +236,4 @@ layout: layouts/base.njk
 </details>
 
 <script src="/js/about-sections.js" defer></script>
+<script src="/js/scroll-region.js" defer></script>

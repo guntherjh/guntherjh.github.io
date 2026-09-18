@@ -652,6 +652,11 @@ time {
 	overflow-y: hidden;
 }
 
+.lighthouse-table-scroll:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+}
+
 .lighthouse-widget table {
 	border-collapse: collapse;
 	width: 100%;
