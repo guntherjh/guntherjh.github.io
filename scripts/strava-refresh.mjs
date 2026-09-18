@@ -27,6 +27,16 @@ const RECENT_ACTIVITY_COUNT = 5;
 // fetched up front as a buffer, otherwise a private activity in the most
 // recent 5 would silently leave the Snapshot with fewer than 5 public ones.
 const ACTIVITY_FETCH_COUNT = 30;
+// The Run Breakdown (see CONTEXT.md) is fetched separately from the flat
+// ACTIVITY_FETCH_COUNT list above, by date window rather than count —
+// windowing that list instead would let a quiet stretch (injury, off-
+// season) silently shrink the "last 5 Activities" the Strava Widget
+// promises to fewer than 5, or even zero. Matches the same 4-week window
+// Strava's own recent-totals endpoint uses (see buildStats).
+const RECENT_WINDOW_DAYS = 28;
+// Strava's documented per_page maximum — fetchRecentActivities pages past
+// this only if a single window holds more Activities than that.
+const ACTIVITY_PAGE_SIZE = 200;
 const SPORT_LABELS = { ride: "Ride", run: "Run", swim: "Swim" };
 const OUTPUT_PATH = fileURLToPath(
 	new URL("../src/_data/strava.json", import.meta.url),
@@ -96,6 +106,32 @@ export function updateRefreshTokenSecret(newRefreshToken) {
 	);
 }
 
+// Strava's /athlete/activities `after` param is a Unix epoch in seconds.
+// Takes `now` as a parameter (rather than reading the clock itself) so this
+// stays a pure, independently-testable function.
+export function computeAfterEpochSeconds(now) {
+	return Math.floor(
+		(now.getTime() - RECENT_WINDOW_DAYS * 24 * 60 * 60 * 1000) / 1000,
+	);
+}
+
+// Pages through every Activity newer than afterEpochSeconds. Strava returns
+// Activities newest-first, so a page shorter than ACTIVITY_PAGE_SIZE
+// reliably means there's nothing older left in the window worth another
+// request.
+export async function fetchRecentActivities(accessToken, afterEpochSeconds) {
+	const activities = [];
+	for (let page = 1; ; page++) {
+		const pageActivities = await fetchJson(
+			`https://www.strava.com/api/v3/athlete/activities?after=${afterEpochSeconds}&per_page=${ACTIVITY_PAGE_SIZE}&page=${page}`,
+			accessToken,
+		);
+		activities.push(...pageActivities);
+		if (pageActivities.length < ACTIVITY_PAGE_SIZE) break;
+	}
+	return activities;
+}
+
 export function buildActivities(rawActivities) {
 	// Public Activities only — never ones marked private on Strava (see
 	// CONTEXT.md's Activity entry / guntherjh/guntherjh.github.io#28). This
@@ -106,9 +142,11 @@ export function buildActivities(rawActivities) {
 		.slice(0, RECENT_ACTIVITY_COUNT)
 		.map((activity) => ({
 			type: activity.type,
+			sport_type: activity.sport_type,
 			name: activity.name,
 			distance: activity.distance,
 			moving_time: activity.moving_time,
+			elevation_gain: activity.total_elevation_gain,
 			start_date: activity.start_date,
 		}));
 }
@@ -129,6 +167,31 @@ export function buildStats(rawStats) {
 	return stats;
 }
 
+// Strava's own recent-totals endpoint (buildStats above) has no notion of
+// Trail Run vs. Run — that distinction only exists per-Activity, via
+// `sport_type` (see CONTEXT.md's Run Breakdown entry) — so this buckets the
+// same windowed Activities fetchRecentActivities returns, rather than
+// pulling a pre-aggregated total from Strava.
+export function buildRunBreakdown(rawActivities) {
+	const totals = {
+		"Road Run": { count: 0, distance: 0, moving_time: 0 },
+		"Trail Run": { count: 0, distance: 0, moving_time: 0 },
+	};
+	for (const activity of rawActivities) {
+		if (activity.private || activity.type !== "Run") continue;
+		const bucket =
+			activity.sport_type === "TrailRun"
+				? totals["Trail Run"]
+				: totals["Road Run"];
+		bucket.count += 1;
+		bucket.distance += activity.distance;
+		bucket.moving_time += activity.moving_time;
+	}
+	return Object.fromEntries(
+		Object.entries(totals).filter(([, bucket]) => bucket.count > 0),
+	);
+}
+
 export async function refreshStravaData() {
 	const tokens = await refreshAccessToken();
 	if (tokens.refresh_token && tokens.refresh_token !== REFRESH_TOKEN) {
@@ -140,10 +203,14 @@ export async function refreshStravaData() {
 		tokens.access_token,
 	);
 
-	const [rawActivities, rawStats] = await Promise.all([
+	const [latestActivities, windowedActivities, rawStats] = await Promise.all([
 		fetchJson(
 			`https://www.strava.com/api/v3/athlete/activities?per_page=${ACTIVITY_FETCH_COUNT}`,
 			tokens.access_token,
+		),
+		fetchRecentActivities(
+			tokens.access_token,
+			computeAfterEpochSeconds(new Date()),
 		),
 		fetchJson(
 			`https://www.strava.com/api/v3/athletes/${athlete.id}/stats`,
@@ -153,8 +220,9 @@ export async function refreshStravaData() {
 
 	const snapshot = {
 		capturedAt: new Date().toISOString(),
-		activities: buildActivities(rawActivities),
+		activities: buildActivities(latestActivities),
 		stats: buildStats(rawStats),
+		runBreakdown: buildRunBreakdown(windowedActivities),
 	};
 	await writeFile(OUTPUT_PATH, `${JSON.stringify(snapshot, null, 2)}\n`);
 	formatWithBiome(OUTPUT_PATH);

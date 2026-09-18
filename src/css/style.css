@@ -598,21 +598,21 @@ time {
 /* Strava Widget (guntherjh/guntherjh.github.io#24): deliberately minimal —
    the map that settled this explicitly deferred visual design/placement
    as its own follow-on effort once the data contract existed (see
-   CONTEXT.md's Strava Widget entry). Just enough for a plain list to read
-   reasonably, no real visual polish here. */
+   CONTEXT.md's Strava Widget entry). Just enough for a plain list/table to
+   read reasonably, no real visual polish here. */
 .strava-widget {
 	margin-top: 1rem;
 }
 
-.strava-activities,
-.strava-stats {
+.strava-stats,
+.strava-run-breakdown {
 	list-style: none;
 	padding: 0;
 	margin: 0;
 }
 
-.strava-activities li,
-.strava-stats li {
+.strava-stats li,
+.strava-run-breakdown li {
 	padding: 0.35rem 0;
 	border-bottom: 1px solid var(--color-border);
 	font-size: 0.9rem;
@@ -622,6 +622,40 @@ time {
 .strava-updated {
 	color: var(--color-muted);
 	font-size: 0.8rem;
+}
+
+/* Recent Activities table (guntherjh/guntherjh.github.io#70) — same
+   horizontal-scroll-on-narrow-screens treatment as the Lighthouse widget's
+   table (guntherjh/guntherjh.github.io#41/#124), scoped to this table only
+   so nothing else in the "Me" section scrolls sideways with it. */
+.strava-activities-scroll {
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.strava-activities-scroll:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+}
+
+.strava-activities-scroll table {
+	border-collapse: collapse;
+	width: 100%;
+	font-size: 0.9rem;
+}
+
+.strava-activities-scroll th,
+.strava-activities-scroll td {
+	padding: 0.35rem 0.5rem;
+	text-align: left;
+	white-space: nowrap;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.strava-activities-scroll th[scope="col"] {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--color-muted);
 }
 
 /* Lighthouse widget (guntherjh/guntherjh.github.io#41): a compact table,

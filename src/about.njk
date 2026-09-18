@@ -31,18 +31,51 @@ layout: layouts/base.njk
           Below you can find data about my most recent runs:
       </p>
       <h4>Recent Activities</h4>
-      <ul class="strava-activities">
-          {% for activity in strava.activities %}
-          <li>
-              <strong>{{ activity.type }}</strong> — {{ activity.name }} —
-              {{ activity.distance | metersToMiles | round(1) }} mi,
-              {{ (activity.moving_time / 60) | round }} min
-              — <time datetime="{{ activity.start_date }}">
-                  {{ activity.start_date | readableDate }}
-              </time>
-          </li>
-          {% endfor %}
-    </ul>
+      {# A compact table, not a prose list — six columns of genuinely
+         tabular data (guntherjh/guntherjh.github.io#70), same reasoning
+         as the Lighthouse widget's table (guntherjh/guntherjh.github.io#41).
+         Only the table scrolls sideways on a narrow screen, same pattern as
+         the Lighthouse widget (guntherjh/guntherjh.github.io#124) — a full
+         stacked-card reflow wasn't judged worth it for a single-line-per-row
+         table this narrow. role + aria-label give the scrolling region an
+         accessible name — WCAG 1.4.10 (Reflow) exempts genuinely two-
+         dimensional data like a table from its no-horizontal-scrolling
+         rule, but only once the scroll mechanism itself is operable (WCAG
+         2.1.1). The .scroll-region marker gets its tabindex from
+         /js/scroll-region.js, not a static attribute here — this section
+         starts collapsed and the table often fits without overflowing even
+         once open, so a tabindex="0" that's always present would be a dead
+         tab stop most of the time. #}
+      <div
+          class="strava-activities-scroll scroll-region"
+          role="region"
+          aria-label="Recent Activities"
+      >
+          <table>
+              <thead>
+                  <tr>
+                      <th scope="col">Activity Type</th>
+                      <th scope="col">Activity Name</th>
+                      <th scope="col">Distance</th>
+                      <th scope="col">Pace</th>
+                      <th scope="col">Elevation</th>
+                      <th scope="col">Date</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for activity in strava.activities %}
+                  <tr>
+                      <td>{{ activity.type | activityTypeLabel(activity.sport_type) }}</td>
+                      <td>{{ activity.name }}</td>
+                      <td>{{ activity.distance | metersToMiles | round(1) }} mi</td>
+                      <td>{{ activity.distance | paceMinPerMile(activity.moving_time) }} /mi</td>
+                      <td>{{ (activity.elevation_gain or 0) | metersToFeet | round }} ft</td>
+                      <td><time datetime="{{ activity.start_date }}">{{ activity.start_date | readableDate }}</time></td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+      </div>
     <h4>
         Recent Stats <span class="strava-stats-window">(last 4 weeks)</span>
     </h4>
@@ -55,6 +88,27 @@ layout: layouts/base.njk
         </li>
       {% endfor %}
     </ul>
+    {% if strava.runBreakdown | length %}
+    {# Run Breakdown (see CONTEXT.md): Road Run vs. Trail Run average
+       mileage/pace, computed by the Refresh Job from Activities directly
+       since Strava's own Stats endpoint has no Trail Run/Run split. `|
+       length` rather than a bare truthiness check — buildRunBreakdown
+       returns `{}` (truthy) during a running-free window, and a bare
+       {% if strava.runBreakdown %} would render this heading with an
+       empty list beneath it. #}
+    <h4>
+        Run Breakdown <span class="strava-stats-window">(last 4 weeks)</span>
+    </h4>
+    <ul class="strava-run-breakdown">
+        {% for label, totals in strava.runBreakdown %}
+        <li>
+            <strong>{{ label }}</strong>:
+            {{ (totals.distance / totals.count) | metersToMiles | round(1) }} mi avg,
+            {{ totals.distance | paceMinPerMile(totals.moving_time) }} /mi avg
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
         <p class="strava-updated">
             Last updated {{ strava.capturedAt | readableDate }}
         </p>

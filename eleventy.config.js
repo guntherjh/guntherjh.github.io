@@ -34,6 +34,30 @@ export function metricLevel(value, metricKey) {
 	return "poor";
 }
 
+// Run Breakdown / per-Activity pace (guntherjh/guntherjh.github.io#70) —
+// value first, movingTimeSeconds second, matching Nunjucks filter-call
+// order ({{ distance | paceMinPerMile(movingTime) }}). Rounds the total
+// seconds-per-mile before splitting into minutes/seconds, rather than
+// rounding the seconds remainder on its own, so a pace like 119.5s/mile
+// carries into "2:00" instead of the invalid "1:60".
+export function paceMinPerMile(distanceMeters, movingTimeSeconds) {
+	if (!distanceMeters) return "—";
+	const miles = distanceMeters / 1609.34;
+	const totalSeconds = Math.round(movingTimeSeconds / miles);
+	const minutes = Math.floor(totalSeconds / 60);
+	const seconds = totalSeconds % 60;
+	return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+// Strava widget Recent Activities table (guntherjh/guntherjh.github.io#70)
+// — labels a Run as "Road Run" or "Trail Run" per Strava's own sport_type
+// field; every other activity type (Ride, Swim, ...) passes through
+// unchanged, since sport_type only diverges from type for Runs.
+export function activityTypeLabel(type, sportType) {
+	if (type !== "Run") return type;
+	return sportType === "TrailRun" ? "Trail Run" : "Road Run";
+}
+
 const LEVEL_RANK = { poor: 0, average: 1, good: 2 };
 
 // Compares the classified level (scoreLevel/metricLevel's "good"/"average"/
@@ -328,9 +352,15 @@ export default function (eleventyConfig) {
 		new Date(dateObj).toISOString(),
 	);
 
-	// Strava reports distance in meters (src/_data/strava.json); named here
-	// rather than inlining the 1609.34 conversion factor at each call site.
+	// Strava reports distance/elevation in meters (src/_data/strava.json);
+	// named here rather than inlining the conversion factor at each call site.
 	eleventyConfig.addFilter("metersToMiles", (meters) => meters / 1609.34);
+	eleventyConfig.addFilter("metersToFeet", (meters) => meters * 3.28084);
+
+	// Strava widget Run Breakdown / per-Activity pace and type label
+	// (guntherjh/guntherjh.github.io#70) — pure functions above.
+	eleventyConfig.addFilter("paceMinPerMile", paceMinPerMile);
+	eleventyConfig.addFilter("activityTypeLabel", activityTypeLabel);
 
 	// Lighthouse widget color-coding/trend (guntherjh/guntherjh.github.io#71)
 	// — see the pure functions above for the actual logic.

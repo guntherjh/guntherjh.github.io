@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+	activityTypeLabel,
 	collectTags,
 	donutSvg,
 	historyValues,
 	metricLevel,
+	paceMinPerMile,
 	postTopics,
 	scoreLevel,
 	sparklineSvg,
@@ -25,6 +27,41 @@ describe("scoreLevel", () => {
 	it("returns poor for scores below 50", () => {
 		expect(scoreLevel(49)).toBe("poor");
 		expect(scoreLevel(0)).toBe("poor");
+	});
+});
+
+describe("paceMinPerMile", () => {
+	it("formats an exact 8:00/mile pace", () => {
+		expect(paceMinPerMile(1609.34, 480)).toBe("8:00");
+	});
+
+	it("pads seconds under 10", () => {
+		expect(paceMinPerMile(1609.34, 483)).toBe("8:03");
+	});
+
+	it("carries a rounded 60 seconds into the next minute", () => {
+		// 2 miles in 239s of moving time = 119.5s/mile, which rounds to
+		// exactly 120s/mile — 2:00, not 1:60.
+		expect(paceMinPerMile(1609.34 * 2, 239)).toBe("2:00");
+	});
+
+	it("returns a placeholder for a zero-distance activity rather than dividing by zero", () => {
+		expect(paceMinPerMile(0, 1800)).toBe("—");
+	});
+});
+
+describe("activityTypeLabel", () => {
+	it("labels a Run with sport_type Run as a Road Run", () => {
+		expect(activityTypeLabel("Run", "Run")).toBe("Road Run");
+	});
+
+	it("labels a Run with sport_type TrailRun as a Trail Run", () => {
+		expect(activityTypeLabel("Run", "TrailRun")).toBe("Trail Run");
+	});
+
+	it("passes non-Run activity types through unchanged", () => {
+		expect(activityTypeLabel("Ride", "Ride")).toBe("Ride");
+		expect(activityTypeLabel("Swim", "Swim")).toBe("Swim");
 	});
 });
 
