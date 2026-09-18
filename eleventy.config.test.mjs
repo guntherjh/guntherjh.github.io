@@ -44,6 +44,10 @@ describe("paceMinPerMile", () => {
 		// exactly 120s/mile — 2:00, not 1:60.
 		expect(paceMinPerMile(1609.34 * 2, 239)).toBe("2:00");
 	});
+
+	it("returns a placeholder for a zero-distance activity rather than dividing by zero", () => {
+		expect(paceMinPerMile(0, 1800)).toBe("—");
+	});
 });
 
 describe("activityTypeLabel", () => {

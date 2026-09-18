@@ -37,14 +37,17 @@ layout: layouts/base.njk
          Only the table scrolls sideways on a narrow screen, same pattern as
          the Lighthouse widget (guntherjh/guntherjh.github.io#124) — a full
          stacked-card reflow wasn't judged worth it for a single-line-per-row
-         table this narrow. tabindex + role + aria-label make the scrolling
-         region itself keyboard-operable and give it an accessible name —
-         WCAG 1.4.10 (Reflow) exempts genuinely two-dimensional data like a
-         table from its no-horizontal-scrolling rule, but only once the
-         scroll mechanism itself is operable (WCAG 2.1.1). #}
+         table this narrow. role + aria-label give the scrolling region an
+         accessible name — WCAG 1.4.10 (Reflow) exempts genuinely two-
+         dimensional data like a table from its no-horizontal-scrolling
+         rule, but only once the scroll mechanism itself is operable (WCAG
+         2.1.1). The .scroll-region marker gets its tabindex from
+         /js/scroll-region.js, not a static attribute here — this section
+         starts collapsed and the table often fits without overflowing even
+         once open, so a tabindex="0" that's always present would be a dead
+         tab stop most of the time. #}
       <div
-          class="strava-activities-scroll"
-          tabindex="0"
+          class="strava-activities-scroll scroll-region"
           role="region"
           aria-label="Recent Activities"
       >
@@ -85,10 +88,14 @@ layout: layouts/base.njk
         </li>
       {% endfor %}
     </ul>
-    {% if strava.runBreakdown %}
+    {% if strava.runBreakdown | length %}
     {# Run Breakdown (see CONTEXT.md): Road Run vs. Trail Run average
        mileage/pace, computed by the Refresh Job from Activities directly
-       since Strava's own Stats endpoint has no Trail Run/Run split. #}
+       since Strava's own Stats endpoint has no Trail Run/Run split. `|
+       length` rather than a bare truthiness check — buildRunBreakdown
+       returns `{}` (truthy) during a running-free window, and a bare
+       {% if strava.runBreakdown %} would render this heading with an
+       empty list beneath it. #}
     <h4>
         Run Breakdown <span class="strava-stats-window">(last 4 weeks)</span>
     </h4>
@@ -269,3 +276,4 @@ layout: layouts/base.njk
 </details>
 
 <script src="/js/about-sections.js" defer></script>
+<script src="/js/scroll-region.js" defer></script>

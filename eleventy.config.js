@@ -41,6 +41,7 @@ export function metricLevel(value, metricKey) {
 // rounding the seconds remainder on its own, so a pace like 119.5s/mile
 // carries into "2:00" instead of the invalid "1:60".
 export function paceMinPerMile(distanceMeters, movingTimeSeconds) {
+	if (!distanceMeters) return "—";
 	const miles = distanceMeters / 1609.34;
 	const totalSeconds = Math.round(movingTimeSeconds / miles);
 	const minutes = Math.floor(totalSeconds / 60);
