@@ -23,6 +23,7 @@ const {
 	fetchRecentActivities,
 	buildActivities,
 	buildStats,
+	buildGearById,
 	buildRunBreakdown,
 	refreshStravaData,
 } = await import("./strava-refresh.mjs");
@@ -347,6 +348,91 @@ describe("Strava refresh", () => {
 
 			expect(Object.keys(breakdown)).toEqual(["Road Run"]);
 		});
+
+		it("resolves a bucket's gear from its most recent activity's gear_id", () => {
+			const breakdown = buildRunBreakdown(
+				[
+					{
+						private: false,
+						type: "Run",
+						sport_type: "Run",
+						distance: 5000,
+						moving_time: 1800,
+						gear_id: "g1",
+					},
+					{
+						private: false,
+						type: "Run",
+						sport_type: "Run",
+						distance: 4000,
+						moving_time: 1500,
+						gear_id: "g2",
+					},
+				],
+				{ g1: "Newer Shoe", g2: "Older Shoe" },
+			);
+
+			expect(breakdown["Road Run"].gear).toBe("Newer Shoe");
+		});
+
+		it("falls back to an older activity's resolvable gear when the most recent has none", () => {
+			const breakdown = buildRunBreakdown(
+				[
+					{
+						private: false,
+						type: "Run",
+						sport_type: "Run",
+						distance: 5000,
+						moving_time: 1800,
+						gear_id: null,
+					},
+					{
+						private: false,
+						type: "Run",
+						sport_type: "Run",
+						distance: 4000,
+						moving_time: 1500,
+						gear_id: "g2",
+					},
+				],
+				{ g2: "Older Shoe" },
+			);
+
+			expect(breakdown["Road Run"].gear).toBe("Older Shoe");
+		});
+
+		it("omits gear entirely when no activity in the bucket has resolvable gear", () => {
+			const breakdown = buildRunBreakdown(
+				[
+					{
+						private: false,
+						type: "Run",
+						sport_type: "Run",
+						distance: 5000,
+						moving_time: 1800,
+						gear_id: "unknown-gear",
+					},
+				],
+				{},
+			);
+
+			expect(breakdown["Road Run"]).not.toHaveProperty("gear");
+		});
+	});
+
+	describe("buildGearById", () => {
+		it("maps shoe and bike ids to names", () => {
+			const gearById = buildGearById({
+				shoes: [{ id: "g1", name: "Pegasus 40" }],
+				bikes: [{ id: "b1", name: "Roubaix" }],
+			});
+
+			expect(gearById).toEqual({ g1: "Pegasus 40", b1: "Roubaix" });
+		});
+
+		it("returns an empty object when the athlete has no shoes or bikes", () => {
+			expect(buildGearById({})).toEqual({});
+		});
 	});
 
 	describe("buildStats", () => {
@@ -408,7 +494,13 @@ describe("Strava refresh", () => {
 					);
 				}
 				if (url === "https://www.strava.com/api/v3/athlete") {
-					return Promise.resolve(jsonResponse({ id: 42 }));
+					return Promise.resolve(
+						jsonResponse({
+							id: 42,
+							shoes: [{ id: "g1", name: "Pegasus 40" }],
+							bikes: [],
+						}),
+					);
 				}
 				if (
 					url.startsWith("https://www.strava.com/api/v3/athlete/activities")
@@ -423,6 +515,7 @@ describe("Strava refresh", () => {
 								distance: 5000,
 								moving_time: 1800,
 								total_elevation_gain: 10,
+								gear_id: "g1",
 								start_date: "2026-01-01T00:00:00Z",
 							},
 						]),
@@ -492,7 +585,12 @@ describe("Strava refresh", () => {
 				},
 			});
 			expect(snapshot.runBreakdown).toEqual({
-				"Road Run": { count: 1, distance: 5000, moving_time: 1800 },
+				"Road Run": {
+					count: 1,
+					distance: 5000,
+					moving_time: 1800,
+					gear: "Pegasus 40",
+				},
 			});
 			expect(formatWithBiome).toHaveBeenCalledWith(outputPath);
 		});

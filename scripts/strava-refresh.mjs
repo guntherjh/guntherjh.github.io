@@ -167,12 +167,27 @@ export function buildStats(rawStats) {
 	return stats;
 }
 
+// A Strava DetailedAthlete's shoes/bikes (only populated with the
+// profile:read_all scope — guntherjh/guntherjh.github.io#188) each carry
+// their own display name; an Activity only carries the opaque `gear_id`
+// that references one of them. Concatenated into one id → name lookup
+// since a gear_id can reference either kind and buildRunBreakdown below
+// doesn't need to distinguish.
+export function buildGearById(athlete) {
+	const gear = [...(athlete.shoes || []), ...(athlete.bikes || [])];
+	return Object.fromEntries(gear.map((g) => [g.id, g.name]));
+}
+
 // Strava's own recent-totals endpoint (buildStats above) has no notion of
 // Trail Run vs. Run — that distinction only exists per-Activity, via
 // `sport_type` (see CONTEXT.md's Run Breakdown entry) — so this buckets the
 // same windowed Activities fetchRecentActivities returns, rather than
-// pulling a pre-aggregated total from Strava.
-export function buildRunBreakdown(rawActivities) {
+// pulling a pre-aggregated total from Strava. Also resolves each bucket's
+// "current" gear (see CONTEXT.md's Run Breakdown entry) — the gear_id of
+// the most recent activity in the bucket that has a resolvable one, since
+// Strava returns Activities newest-first and gear isn't tagged on every
+// activity. Omitted entirely from a bucket if nothing in it resolves.
+export function buildRunBreakdown(rawActivities, gearById = {}) {
 	const totals = {
 		"Road Run": { count: 0, distance: 0, moving_time: 0 },
 		"Trail Run": { count: 0, distance: 0, moving_time: 0 },
@@ -186,6 +201,9 @@ export function buildRunBreakdown(rawActivities) {
 		bucket.count += 1;
 		bucket.distance += activity.distance;
 		bucket.moving_time += activity.moving_time;
+		if (!bucket.gear && gearById[activity.gear_id]) {
+			bucket.gear = gearById[activity.gear_id];
+		}
 	}
 	return Object.fromEntries(
 		Object.entries(totals).filter(([, bucket]) => bucket.count > 0),
@@ -222,7 +240,7 @@ export async function refreshStravaData() {
 		capturedAt: new Date().toISOString(),
 		activities: buildActivities(latestActivities),
 		stats: buildStats(rawStats),
-		runBreakdown: buildRunBreakdown(windowedActivities),
+		runBreakdown: buildRunBreakdown(windowedActivities, buildGearById(athlete)),
 	};
 	await writeFile(OUTPUT_PATH, `${JSON.stringify(snapshot, null, 2)}\n`);
 	formatWithBiome(OUTPUT_PATH);
