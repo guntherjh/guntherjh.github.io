@@ -37,8 +37,17 @@ layout: layouts/base.njk
          Only the table scrolls sideways on a narrow screen, same pattern as
          the Lighthouse widget (guntherjh/guntherjh.github.io#124) — a full
          stacked-card reflow wasn't judged worth it for a single-line-per-row
-         table this narrow. #}
-      <div class="strava-activities-scroll">
+         table this narrow. tabindex + role + aria-label make the scrolling
+         region itself keyboard-operable and give it an accessible name —
+         WCAG 1.4.10 (Reflow) exempts genuinely two-dimensional data like a
+         table from its no-horizontal-scrolling rule, but only once the
+         scroll mechanism itself is operable (WCAG 2.1.1). #}
+      <div
+          class="strava-activities-scroll"
+          tabindex="0"
+          role="region"
+          aria-label="Recent Activities"
+      >
           <table>
               <thead>
                   <tr>
