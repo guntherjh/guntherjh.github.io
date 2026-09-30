@@ -1,6 +1,55 @@
 {
 	"history": [
 		{
+			"capturedAt": "2026-09-30T11:07:12.268Z",
+			"pages": {
+				"Home": {
+					"scores": {
+						"performance": 100,
+						"accessibility": 100,
+						"best-practices": 100,
+						"seo": 100
+					},
+					"lcp": 953.799,
+					"cls": 0,
+					"tbt": 64.5
+				},
+				"About": {
+					"scores": {
+						"performance": 100,
+						"accessibility": 100,
+						"best-practices": 100,
+						"seo": 100
+					},
+					"lcp": 919.5107,
+					"cls": 0,
+					"tbt": 0
+				},
+				"Resume": {
+					"scores": {
+						"performance": 100,
+						"accessibility": 100,
+						"best-practices": 100,
+						"seo": 100
+					},
+					"lcp": 917.9433,
+					"cls": 0,
+					"tbt": 0
+				},
+				"Blog": {
+					"scores": {
+						"performance": 100,
+						"accessibility": 100,
+						"best-practices": 100,
+						"seo": 100
+					},
+					"lcp": 917.7908,
+					"cls": 0,
+					"tbt": 0
+				}
+			}
+		},
+		{
 			"capturedAt": "2026-09-29T11:18:59.940Z",
 			"pages": {
 				"Home": {
@@ -436,55 +485,6 @@
 						"seo": 100
 					},
 					"lcp": 901.3054,
-					"cls": 0,
-					"tbt": 0
-				}
-			}
-		},
-		{
-			"capturedAt": "2026-09-19T09:24:15.020Z",
-			"pages": {
-				"Home": {
-					"scores": {
-						"performance": 100,
-						"accessibility": 100,
-						"best-practices": 100,
-						"seo": 100
-					},
-					"lcp": 1190.6399999999999,
-					"cls": 0,
-					"tbt": 10
-				},
-				"About": {
-					"scores": {
-						"performance": 100,
-						"accessibility": 100,
-						"best-practices": 100,
-						"seo": 100
-					},
-					"lcp": 902.3821,
-					"cls": 0,
-					"tbt": 0
-				},
-				"Resume": {
-					"scores": {
-						"performance": 100,
-						"accessibility": 100,
-						"best-practices": 100,
-						"seo": 100
-					},
-					"lcp": 1051.333,
-					"cls": 0,
-					"tbt": 0
-				},
-				"Blog": {
-					"scores": {
-						"performance": 100,
-						"accessibility": 100,
-						"best-practices": 100,
-						"seo": 100
-					},
-					"lcp": 900.9933,
 					"cls": 0,
 					"tbt": 0
 				}
