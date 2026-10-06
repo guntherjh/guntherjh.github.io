@@ -1,6 +1,55 @@
 {
 	"history": [
 		{
+			"capturedAt": "2026-10-06T11:59:24.529Z",
+			"pages": {
+				"Home": {
+					"scores": {
+						"performance": 100,
+						"accessibility": 100,
+						"best-practices": 100,
+						"seo": 100
+					},
+					"lcp": 1101.929,
+					"cls": 0,
+					"tbt": 0
+				},
+				"About": {
+					"scores": {
+						"performance": 100,
+						"accessibility": 100,
+						"best-practices": 100,
+						"seo": 100
+					},
+					"lcp": 903.4106,
+					"cls": 0,
+					"tbt": 0
+				},
+				"Resume": {
+					"scores": {
+						"performance": 100,
+						"accessibility": 100,
+						"best-practices": 100,
+						"seo": 100
+					},
+					"lcp": 902.0104,
+					"cls": 0,
+					"tbt": 0
+				},
+				"Blog": {
+					"scores": {
+						"performance": 100,
+						"accessibility": 100,
+						"best-practices": 100,
+						"seo": 100
+					},
+					"lcp": 902.0554,
+					"cls": 0,
+					"tbt": 0
+				}
+			}
+		},
+		{
 			"capturedAt": "2026-10-05T12:15:09.632Z",
 			"pages": {
 				"Home": {
@@ -436,55 +485,6 @@
 						"seo": 100
 					},
 					"lcp": 902.2483,
-					"cls": 0,
-					"tbt": 0
-				}
-			}
-		},
-		{
-			"capturedAt": "2026-09-25T10:10:52.031Z",
-			"pages": {
-				"Home": {
-					"scores": {
-						"performance": 100,
-						"accessibility": 100,
-						"best-practices": 100,
-						"seo": 100
-					},
-					"lcp": 984.314,
-					"cls": 0,
-					"tbt": 0
-				},
-				"About": {
-					"scores": {
-						"performance": 100,
-						"accessibility": 100,
-						"best-practices": 100,
-						"seo": 100
-					},
-					"lcp": 904.0646,
-					"cls": 0,
-					"tbt": 0
-				},
-				"Resume": {
-					"scores": {
-						"performance": 100,
-						"accessibility": 100,
-						"best-practices": 100,
-						"seo": 100
-					},
-					"lcp": 901.9472,
-					"cls": 0,
-					"tbt": 0
-				},
-				"Blog": {
-					"scores": {
-						"performance": 100,
-						"accessibility": 100,
-						"best-practices": 100,
-						"seo": 100
-					},
-					"lcp": 902.1883,
 					"cls": 0,
 					"tbt": 0
 				}
