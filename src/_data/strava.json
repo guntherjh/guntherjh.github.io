@@ -1,5 +1,5 @@
 {
-	"capturedAt": "2026-10-16T09:37:24.323Z",
+	"capturedAt": "2026-10-17T09:08:53.159Z",
 	"activities": [
 		{
 			"type": "Run",
@@ -49,10 +49,10 @@
 	],
 	"stats": {
 		"Run": {
-			"count": 6,
-			"distance": 45273.5,
-			"moving_time": 13979,
-			"elevation_gain": 672
+			"count": 5,
+			"distance": 28448.2,
+			"moving_time": 7974,
+			"elevation_gain": 300
 		}
 	},
 	"runBreakdown": {
@@ -61,12 +61,6 @@
 			"distance": 28448.199999999997,
 			"moving_time": 7974,
 			"gear": "Nike Pegs"
-		},
-		"Trail Run": {
-			"count": 1,
-			"distance": 16825.3,
-			"moving_time": 6005,
-			"gear": "Nike Zegama v2 Blue"
 		}
 	}
 }
