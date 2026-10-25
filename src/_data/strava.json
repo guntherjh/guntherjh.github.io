@@ -1,6 +1,33 @@
 {
-	"capturedAt": "2026-10-24T09:23:24.019Z",
+	"capturedAt": "2026-10-25T09:41:57.570Z",
 	"activities": [
+		{
+			"type": "Hike",
+			"sport_type": "Hike",
+			"name": "De Lacy creek",
+			"distance": 3120.7,
+			"moving_time": 2273,
+			"elevation_gain": 39,
+			"start_date": "2026-10-24T21:08:46Z"
+		},
+		{
+			"type": "Hike",
+			"sport_type": "Hike",
+			"name": "Fairy Falls",
+			"distance": 8924.8,
+			"moving_time": 6811,
+			"elevation_gain": 109,
+			"start_date": "2026-10-24T18:04:42Z"
+		},
+		{
+			"type": "Hike",
+			"sport_type": "Hike",
+			"name": "Norris Basin",
+			"distance": 3008.6,
+			"moving_time": 2561,
+			"elevation_gain": 45,
+			"start_date": "2026-10-24T16:11:57Z"
+		},
 		{
 			"type": "Run",
 			"sport_type": "Run",
@@ -18,33 +45,6 @@
 			"moving_time": 2331,
 			"elevation_gain": 84,
 			"start_date": "2026-10-08T23:36:16Z"
-		},
-		{
-			"type": "Run",
-			"sport_type": "Run",
-			"name": "Afternoon Run",
-			"distance": 8084.9,
-			"moving_time": 2261,
-			"elevation_gain": 89,
-			"start_date": "2026-10-04T17:52:05Z"
-		},
-		{
-			"type": "Run",
-			"sport_type": "Run",
-			"name": "Lunch Run",
-			"distance": 5660,
-			"moving_time": 1564,
-			"elevation_gain": 58,
-			"start_date": "2026-10-02T16:10:24Z"
-		},
-		{
-			"type": "Run",
-			"sport_type": "Run",
-			"name": "Afternoon Run",
-			"distance": 916.4,
-			"moving_time": 253,
-			"elevation_gain": 15,
-			"start_date": "2026-09-29T20:41:42Z"
 		}
 	],
 	"stats": {
