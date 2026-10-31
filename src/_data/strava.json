@@ -1,5 +1,5 @@
 {
-	"capturedAt": "2026-10-29T11:24:44.151Z",
+	"capturedAt": "2026-10-31T10:50:07.779Z",
 	"activities": [
 		{
 			"type": "Hike",
@@ -49,17 +49,17 @@
 	],
 	"stats": {
 		"Run": {
-			"count": 4,
-			"distance": 27531.8,
-			"moving_time": 7721,
-			"elevation_gain": 285
+			"count": 3,
+			"distance": 21871.8,
+			"moving_time": 6157,
+			"elevation_gain": 227
 		}
 	},
 	"runBreakdown": {
 		"Road Run": {
-			"count": 4,
-			"distance": 27531.8,
-			"moving_time": 7721,
+			"count": 3,
+			"distance": 21871.8,
+			"moving_time": 6157,
 			"gear": "Nike Pegs"
 		}
 	}
