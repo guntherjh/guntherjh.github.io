@@ -1,6 +1,15 @@
 {
-	"capturedAt": "2026-11-03T12:42:40.148Z",
+	"capturedAt": "2026-11-04T12:52:54.120Z",
 	"activities": [
+		{
+			"type": "Run",
+			"sport_type": "Run",
+			"name": "Afternoon Run",
+			"distance": 937.2,
+			"moving_time": 266,
+			"elevation_gain": 14,
+			"start_date": "2026-11-03T21:53:26Z"
+		},
 		{
 			"type": "Run",
 			"sport_type": "Run",
@@ -36,30 +45,21 @@
 			"moving_time": 2561,
 			"elevation_gain": 45,
 			"start_date": "2026-10-24T16:11:57Z"
-		},
-		{
-			"type": "Run",
-			"sport_type": "Run",
-			"name": "Lunch Run",
-			"distance": 5710,
-			"moving_time": 1565,
-			"elevation_gain": 54,
-			"start_date": "2026-10-09T15:49:56Z"
 		}
 	],
 	"stats": {
 		"Run": {
-			"count": 3,
-			"distance": 21849.8,
-			"moving_time": 6182,
-			"elevation_gain": 224
+			"count": 4,
+			"distance": 22787,
+			"moving_time": 6448,
+			"elevation_gain": 238
 		}
 	},
 	"runBreakdown": {
 		"Road Run": {
-			"count": 3,
-			"distance": 21849.8,
-			"moving_time": 6182,
+			"count": 4,
+			"distance": 22787,
+			"moving_time": 6448,
 			"gear": "Nike Pegs"
 		}
 	}
