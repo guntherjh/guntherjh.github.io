@@ -1,6 +1,15 @@
 {
-	"capturedAt": "2026-11-07T11:37:22.092Z",
+	"capturedAt": "2026-11-08T11:49:49.326Z",
 	"activities": [
+		{
+			"type": "Run",
+			"sport_type": "Run",
+			"name": "For those about to rock",
+			"distance": 8109.6,
+			"moving_time": 2248,
+			"elevation_gain": 86,
+			"start_date": "2026-11-07T21:01:45Z"
+		},
 		{
 			"type": "Run",
 			"sport_type": "Run",
@@ -36,30 +45,21 @@
 			"moving_time": 6811,
 			"elevation_gain": 109,
 			"start_date": "2026-10-24T18:04:42Z"
-		},
-		{
-			"type": "Hike",
-			"sport_type": "Hike",
-			"name": "Norris Basin",
-			"distance": 3008.6,
-			"moving_time": 2561,
-			"elevation_gain": 45,
-			"start_date": "2026-10-24T16:11:57Z"
 		}
 	],
 	"stats": {
 		"Run": {
-			"count": 2,
-			"distance": 9000.1,
-			"moving_time": 2552,
-			"elevation_gain": 100
+			"count": 3,
+			"distance": 17109.7,
+			"moving_time": 4800,
+			"elevation_gain": 186
 		}
 	},
 	"runBreakdown": {
 		"Road Run": {
-			"count": 2,
-			"distance": 9000.1,
-			"moving_time": 2552,
+			"count": 3,
+			"distance": 17109.7,
+			"moving_time": 4800,
 			"gear": "Nike Pegs"
 		}
 	}
