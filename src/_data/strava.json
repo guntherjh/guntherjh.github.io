@@ -1,6 +1,15 @@
 {
-	"capturedAt": "2026-11-09T13:44:57.848Z",
+	"capturedAt": "2026-11-10T13:23:04.194Z",
 	"activities": [
+		{
+			"type": "Run",
+			"sport_type": "Run",
+			"name": "Lunch Run",
+			"distance": 8136.2,
+			"moving_time": 2252,
+			"elevation_gain": 89,
+			"start_date": "2026-11-09T16:48:48Z"
+		},
 		{
 			"type": "Run",
 			"sport_type": "Run",
@@ -36,30 +45,21 @@
 			"moving_time": 2273,
 			"elevation_gain": 39,
 			"start_date": "2026-10-24T21:08:46Z"
-		},
-		{
-			"type": "Hike",
-			"sport_type": "Hike",
-			"name": "Fairy Falls",
-			"distance": 8924.8,
-			"moving_time": 6811,
-			"elevation_gain": 109,
-			"start_date": "2026-10-24T18:04:42Z"
 		}
 	],
 	"stats": {
 		"Run": {
-			"count": 3,
-			"distance": 17109.7,
-			"moving_time": 4800,
-			"elevation_gain": 186
+			"count": 4,
+			"distance": 25245.9,
+			"moving_time": 7052,
+			"elevation_gain": 275
 		}
 	},
 	"runBreakdown": {
 		"Road Run": {
-			"count": 3,
-			"distance": 17109.7,
-			"moving_time": 4800,
+			"count": 4,
+			"distance": 25245.9,
+			"moving_time": 7052,
 			"gear": "Nike Pegs"
 		}
 	}
